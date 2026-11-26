@@ -170,6 +170,13 @@ html,body{overscroll-behavior-y:contain}
 #wSkip{background:none;border:0;color:var(--muted);font:inherit;font-weight:800;text-decoration:underline;padding:12px;cursor:pointer}
 #wLink{user-select:all;overflow-wrap:anywhere;font-weight:800}
 @media (max-height:700px){.wbox .logo{width:76px;height:76px}.wbox h2{margin-top:8px;font-size:22px}#wPerks{margin-bottom:10px;font-size:14px}.wbig{padding:12px}}
+/* sürüm ve yenilikler */
+#fVer{background:none;border:0;color:inherit;font:inherit;font-weight:800;text-decoration:underline;padding:8px 10px;cursor:pointer}
+#verDlg>div{display:flex;flex-direction:column;max-height:86vh}#verBody{overflow:auto;margin-bottom:12px}#verBody h3{margin:8px 0 4px;font-size:16px;color:var(--accent)}#verBody h3 small{color:var(--muted);font-weight:700}#verBody ul{margin:0;padding-left:20px}#verBody li{margin-bottom:4px}
+.upbar{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:75;max-width:536px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--surface);border:3px solid var(--accent);border-radius:16px;padding:10px 12px;font-weight:800;box-shadow:0 6px 24px rgba(0,0,0,.5)}
+.vers .row{flex-wrap:wrap;gap:8px}
+body:has(#upBar:not([hidden])) .wrap{padding-bottom:110px}
+body:has(#upBar:not([hidden])) .toast{bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 
 .gemico{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:center;font-size:38px}.shipico{display:block;font-size:40px;line-height:54px;text-align:center}
 /* --- kopyalanan oyun stilleri --- */
@@ -322,7 +329,7 @@ body.aslan-mode.vip-gold #roachWrap svg{filter:drop-shadow(0 0 12px rgba(251,191
   <nav class="cats" id="cats" aria-label="Kategoriler"></nav>
   <div class="grid" id="grid"></div>
 </main>
-<footer>Skorların oyuncu adınla çevrimiçi sıralamaya gönderilir.<div class="sign">Ferdi</div></footer>
+<footer>Skorların oyuncu adınla çevrimiçi sıralamaya gönderilir.<br><button type="button" id="fVer"></button><div class="sign">Ferdi</div></footer>
 </div>
 <div class="gov" id="gameOv" hidden><div class="gin"><div class="gtop"><b id="gTitle"></b><div class="gtop-btns"><button type="button" class="btn" id="gBoard" aria-label="Bu oyunun sıralaması (oyun baştan açılır)">🏅</button><button type="button" class="btn" id="gSound" aria-label="Ses aç veya kapat">🔊</button><button type="button" class="btn" id="gClose">✕</button></div></div><div id="gBody"></div></div></div>
 <div class="full" id="board" hidden role="dialog" aria-modal="true" aria-label="Sıralama"><div class="gin"><div class="gtop"><b>🏆 Sıralama</b><button type="button" class="btn" id="bClose">✕ Kapat</button></div>
@@ -346,6 +353,8 @@ body.aslan-mode.vip-gold #roachWrap svg{filter:drop-shadow(0 0 12px rgba(251,191
   <p id="wLink" hidden></p>
   <button type="button" id="wSkip">Şimdilik tarayıcıda devam et</button>
 </div></div>
+<div class="upbar" id="upBar" hidden role="status"><span id="upText"></span><button type="button" class="btn pri" id="upBtn">Güncelle</button></div>
+<div class="dlg" id="verDlg" hidden role="dialog" aria-modal="true" aria-labelledby="verTitle"><div><h2 id="verTitle">Yenilikler</h2><div id="verBody"></div><div class="row ctr"><button type="button" class="btn pri" id="verOk">Tamam</button></div></div></div>
 <div class="dlg" id="instDlg" hidden role="dialog" aria-modal="true" aria-labelledby="instTitle"><div><h2 id="instTitle">Uygulama olarak yükle</h2><ol id="instSteps"></ol><p class="note" id="instNote"></p><div class="row ctr"><button type="button" class="btn pri" id="instOk">Tamam</button></div></div></div>
 <div class="dlg" id="noteDlg" hidden role="alertdialog" aria-modal="true" aria-labelledby="noteTitle" aria-describedby="noteText"><div><h2 id="noteTitle">Bildirim</h2><p id="noteText"></p><div class="row ctr"><button type="button" class="btn pri" id="noteOk">Tamam</button></div></div></div>
 <div class="dlg" id="rstDlg" hidden role="alertdialog" aria-modal="true" aria-labelledby="rstTitle" aria-describedby="rstText"><div><h2 id="rstTitle">Skor sıfırlansın mı?</h2><p id="rstNum">Adım 1 / 2</p><p id="rstText"></p><div id="rstType" hidden><label for="rstIn">Onaylamak için <b>SIFIRLA</b> yaz</label><input id="rstIn" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="12"></div><div id="rstErr" role="alert"></div><div class="row ctr"><button type="button" class="btn" id="rstNo">Vazgeç</button><button type="button" class="btn red" id="rstYes">Devam et</button></div></div></div>
@@ -2646,6 +2655,7 @@ function setRender(){
   '<div class="row ctr"><button type="button" class="btn" data-act="reset">↺ Varsayılana dön</button></div><p class="note">Adın, skorların ve favorilerin değişmez.</p>'+
   rstSection()+
   (pname()?'<section class="danger"><h3>Sıralamadan silinme</h3><p>Adın ve online skorların sıralamadan kalıcı olarak silinir.</p><button type="button" class="btn red" data-act="del">🗑️ Beni sıralamadan sil</button></section>':'')+
+  '<section class="vers"><h3>Sürüm '+APP_VERSION+'</h3><div class="row ctr"><button type="button" class="btn" data-act="news">📋 Yenilikler</button><button type="button" class="btn'+(VC.found?' pri':'')+'" data-act="upd">'+(VC.found?'⬇️ '+VC.found+' sürümüne güncelle':'🔄 Güncelleme denetle')+'</button></div></section>'+
   '<div class="row ctr admlink"><button type="button" class="btn" data-act="admin">🔐 Yönetici girişi</button></div>';
 }
 function setOpen(){if($('#settings').hidden){try{history.pushState({s:1},'')}catch(e){}}$('#settings').hidden=false;$('#settings').scrollTop=0;setRender()}
@@ -2655,6 +2665,9 @@ $('#setBody').onclick=function(e){
   if(b.dataset.act==='name')return nameAsk();
   if(b.dataset.act==='del')return delOpen();
   if(b.dataset.act==='admin')return admOpen();
+  if(b.dataset.act==='news')return verShow('📋 Yenilikler',CHANGELOG);
+  if(b.dataset.act==='upd'){if(VC.found)return verUpdate();if(!canWeb())return toast('Güncelleme yalnızca web adresinden denetlenir.');b.disabled=true;
+    return verCheck(true).then(function(v){setRender();toast(v===null?'Denetlenemedi. İnternetini kontrol et.':v?'🆕 Yeni sürüm '+v+' hazır':'✅ Uygulaman güncel')})}
   if(b.dataset.act==='rst')return rstOpen($('#setRst').value);
   if(b.dataset.act==='reset'){Object.keys(DEF).forEach(function(k){lsSet(k,DEF[k])});cat=DEF.startcat;applySettings();setRender();toast('Ayarlar varsayılana döndü');return}
   var k=b.dataset.set,v=b.dataset.v;if(!k)return;
@@ -2870,6 +2883,60 @@ $('#wCopy').onclick=function(){var b=this,url=location.href;
 $('#wSkip').onclick=welcomeClose;
 syncInstall();
 
+/* ================= SÜRÜM VE YENİLİKLER =================
+   HER GÜNCELLEMEDE: APP_VERSION'ı artır ve listenin EN BAŞINA yeni maddeyi ekle (build.py ikisinin aynı olduğunu denetler). */
+var APP_VERSION='1.6';
+var CHANGELOG=[
+ ['1.6',['Sürüm numarası ve bu “Yenilikler” penceresi eklendi.','Yeni sürüm çıkınca uygulama haber veriyor; tek dokunuşla güncelleniyor.']],
+ ['1.5',['Telefona uygulama olarak yükleme ve ilk girişte kurulum ekranı.','Oyunlar internetsiz de açılıyor.']],
+ ['1.4',['Yönetici bölümü: şifreyle skor ve oyuncu silme.']],
+ ['1.3',['Skorunu sıfırlama (2 aşamalı onay) ve sıralamadan kendini silme.']],
+ ['1.2',['Ayarlar: temalar, liste görünümü, ses düzeyi ve titreşim.']],
+ ['1.1',['İnsansız hava aracı oyunları eklendi, oyun hataları düzeltildi.']],
+ ['1.0',['Piksel Arena: nostaljik ve modern oyunlar, çevrimiçi sıralama.']]
+];
+function verNum(v){return String(v).split('.').reduce(function(t,x,i){return t+(+x||0)/Math.pow(1000,i)},0)}
+function verList(L){return L.map(function(c){return '<h3>Sürüm '+c[0]+(c[0]===APP_VERSION?' <small>(şu anki)</small>':'')+'</h3><ul>'+c[1].map(function(t){return '<li>'+t+'</li>'}).join('')+'</ul>'}).join('')}
+function verShow(title,list){
+  $('#verTitle').textContent=title;$('#verBody').innerHTML=verList(list);
+  if($('#verDlg').hidden){try{history.pushState({v:1},'')}catch(e){}$('#verDlg').hidden=false}$('#verBody').scrollTop=0;$('#verOk').focus({preventScroll:true});
+}
+function verClose(fromBack){if($('#verDlg').hidden)return;if(fromBack!==true)popBack('v');$('#verDlg').hidden=true;lsSet('ver',APP_VERSION)}
+/* açılışta: daha önce kullanan biri güncel sürümü ilk kez görüyorsa yenilikleri göster (yeni gelene gösterme) */
+function verStart(){
+  var seen=lsGet('ver'),returning=!!(seen||pname()||lsGet('key')||lsGet('welcome')||lsGet('optout'));
+  if(!returning){lsSet('ver',APP_VERSION);return}
+  if(seen&&verNum(seen)>=verNum(APP_VERSION))return;
+  var list=seen?CHANGELOG.filter(function(c){return verNum(c[0])>verNum(seen)}):CHANGELOG.slice(0,1);
+  verWait=['🆕 Güncellendi: sürüm '+APP_VERSION,list];verFlush();
+}
+/* kurulum ekranı ya da ad penceresi açıksa yenilikler onlar kapanınca gösterilir */
+var verWait=null;
+function verFlush(){if(!verWait||!$('#welcome').hidden||!$('#nameDlg').hidden)return;var w=verWait;verWait=null;verShow(w[0],w[1])}
+['#welcome','#nameDlg'].forEach(function(s){new MutationObserver(verFlush).observe($(s),{attributes:true,attributeFilter:['hidden']})});
+
+/* --- uygulama açıkken yeni sürüm denetimi --- */
+var VC={last:0,found:'',busy:null};
+function verCheck(force){
+  if(!canWeb())return Promise.resolve(null);
+  if(VC.busy)return VC.busy;
+  if(!force&&(document.hidden||Date.now()-VC.last<15*60000))return Promise.resolve(VC.found);
+  VC.last=Date.now();
+  return VC.busy=fetch('index.html?s='+VC.last,{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('http');return r.text()}).then(function(t){
+    var m=t.match(/var APP_VERSION='([0-9.]+)'/);VC.found=m&&verNum(m[1])>verNum(APP_VERSION)?m[1]:'';
+    $('#upBar').hidden=!VC.found;if(VC.found)$('#upText').textContent='🆕 Yeni sürüm '+VC.found+' hazır';return VC.found;
+  }).catch(function(){VC.last=0;return null}).then(function(v){VC.busy=null;return v});
+}
+function verUpdate(){location.reload()}
+document.addEventListener('visibilitychange',function(){if(!document.hidden)verCheck()});
+window.addEventListener('online',function(){verCheck()});
+setTimeout(function(){verCheck(true)},8000);
+setInterval(function(){verCheck()},60000);
+$('#verOk').onclick=function(){verClose()};
+$('#upBtn').onclick=verUpdate;
+$('#fVer').textContent='Sürüm '+APP_VERSION+' · Yenilikler';
+$('#fVer').onclick=function(){verShow('📋 Yenilikler',CHANGELOG)};
+
 /* ================= SALON ================= */
 function rvLabel(g){return function(){return 'Lig '+(rvGet(g).tier+1)+'/'+RANKS.length}}
 function recLabel(id,pre){return function(){var b=bget(id);return b===null?'Yeni':(pre||'Rekor')+': '+b}}
@@ -2937,14 +3004,15 @@ $('#hRandom').onclick=function(){var g=GAMES[rnd(GAMES.length)];toast('🎲 '+g.
 $('#hSound').onclick=toggleSound;$('#gSound').onclick=toggleSound;
 $('#gClose').onclick=function(){hideGame();popBack('g')};
 /* geri tuşu yalnız üstteki küçük pencereyi kapatınca, alttaki ekranın geçmiş kaydı geri konur */
-function rePush(){var k=!$('#admin').hidden?'a':!$('#board').hidden?'b':!$('#settings').hidden?'s':!$('#gameOv').hidden?'g':'';if(k){var st={};st[k]=1;try{history.pushState(st,'')}catch(e){}}}
-window.addEventListener('popstate',function(){if(skipPop>0){skipPop--;return}if(!$('#instDlg').hidden){instClose(true);return}if(!$('#board').hidden)boardClose(true);else if(!$('#noteDlg').hidden){$('#noteDlg').hidden=true;rePush()}else if(!$('#admDlg').hidden){admDlgClose();rePush()}else if(!$('#admin').hidden){if(ADM.busy)rePush();else admClose(true)}else if(!$('#rstDlg').hidden){rstClose();try{history.pushState({s:1},'')}catch(e){}}else if(!$('#delDlg').hidden){delClose();try{history.pushState({s:1},'')}catch(e){}}else if(!$('#settings').hidden)setClose(true);else if(!$('#gameOv').hidden)hideGame()});
-document.addEventListener('keydown',function(e){if(e.key!=='Escape'||!$('#nameDlg').hidden)return;if(!$('#instDlg').hidden){instClose();return}if(!$('#welcome').hidden){welcomeClose();return}if(!$('#board').hidden)boardClose();else if(!$('#noteDlg').hidden)$('#noteDlg').hidden=true;else if(!$('#admDlg').hidden)admDlgClose();else if(!$('#admin').hidden)admClose();else if(!$('#rstDlg').hidden)rstClose();else if(!$('#delDlg').hidden)delClose();else if(!$('#settings').hidden)setClose();else if(!$('#gameOv').hidden)$('#gClose').click()});
+function rePush(){var k=!$('#verDlg').hidden?'v':!$('#admin').hidden?'a':!$('#board').hidden?'b':!$('#settings').hidden?'s':!$('#gameOv').hidden?'g':'';if(k){var st={};st[k]=1;try{history.pushState(st,'')}catch(e){}}}
+window.addEventListener('popstate',function(){if(skipPop>0){skipPop--;return}if(!$('#verDlg').hidden&&$('#noteDlg').hidden){verClose(true);return}if(!$('#instDlg').hidden){instClose(true);return}if(!$('#board').hidden)boardClose(true);else if(!$('#noteDlg').hidden){$('#noteDlg').hidden=true;rePush()}else if(!$('#admDlg').hidden){admDlgClose();rePush()}else if(!$('#admin').hidden){if(ADM.busy)rePush();else admClose(true)}else if(!$('#rstDlg').hidden){rstClose();try{history.pushState({s:1},'')}catch(e){}}else if(!$('#delDlg').hidden){delClose();try{history.pushState({s:1},'')}catch(e){}}else if(!$('#settings').hidden)setClose(true);else if(!$('#gameOv').hidden)hideGame()});
+document.addEventListener('keydown',function(e){if(e.key!=='Escape'||!$('#nameDlg').hidden)return;if(!$('#verDlg').hidden&&$('#noteDlg').hidden){verClose();return}if(!$('#instDlg').hidden){instClose();return}if(!$('#welcome').hidden){welcomeClose();return}if(!$('#board').hidden)boardClose();else if(!$('#noteDlg').hidden)$('#noteDlg').hidden=true;else if(!$('#admDlg').hidden)admDlgClose();else if(!$('#admin').hidden)admClose();else if(!$('#rstDlg').hidden)rstClose();else if(!$('#delDlg').hidden)delClose();else if(!$('#settings').hidden)setClose();else if(!$('#gameOv').hidden)$('#gClose').click()});
 document.addEventListener('pointerdown',function once(){unlockAudio();document.removeEventListener('pointerdown',once)});
 $('#bSel').innerHTML=GAMES.map(function(g){return '<option value="'+g.id+'">'+g.ic+' '+g.t+'</option>'}).join('');
 applySettings();cat=CATS.some(function(c){return c[0]===pref('startcat')})?pref('startcat'):'all';syncName();renderHub();
 if(welcomeNeeded())welcomeOpen();
 if(pname())queueSync();else if(lsGet('optout')!=='1'&&$('#welcome').hidden)nameAsk();
+verStart();
 
 </script>
 </body>
