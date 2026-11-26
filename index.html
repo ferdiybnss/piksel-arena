@@ -160,6 +160,16 @@ body[data-view=list] .fav{top:50%;transform:translateY(-50%);right:8px;font-size
 /* uygulama olarak yükleme */
 html,body{overscroll-behavior-y:contain}
 #instRow{margin-top:8px;text-align:center}#instSteps{margin:0 0 12px;padding-left:22px}#instSteps li{margin-bottom:8px}
+/* ilk giriş: uygulamayı kur */
+.welcome{position:fixed;inset:0;z-index:93;overflow:auto;display:flex;background:radial-gradient(circle at 50% 18%,var(--surface),var(--bg) 70%);background-color:var(--bg);padding:max(18px,env(safe-area-inset-top,0px)) 20px max(18px,env(safe-area-inset-bottom,0px))}
+.wbox{margin:auto;width:100%;max-width:420px;text-align:center}.wbox .logo{width:108px;height:108px;display:block;margin:0 auto}
+.wbox h2{margin:12px 0 6px;font:700 25px var(--f-display);color:var(--accent)}.wbox p{margin:0 0 12px}
+#wPerks{list-style:none;margin:0 0 16px;padding:0;font-weight:700;color:var(--muted)}#wPerks li{margin:4px 0}
+#wHelp{text-align:left;background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:12px 14px 4px;margin-bottom:12px}#wSteps{margin:0 0 8px;padding-left:20px}#wSteps li{margin-bottom:6px}#wNote:empty{display:none}
+.wbig{display:block;width:100%;padding:15px;font-size:18px;margin-bottom:6px}
+#wSkip{background:none;border:0;color:var(--muted);font:inherit;font-weight:800;text-decoration:underline;padding:12px;cursor:pointer}
+#wLink{user-select:all;overflow-wrap:anywhere;font-weight:800}
+@media (max-height:700px){.wbox .logo{width:76px;height:76px}.wbox h2{margin-top:8px;font-size:22px}#wPerks{margin-bottom:10px;font-size:14px}.wbig{padding:12px}}
 
 .gemico{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:center;font-size:38px}.shipico{display:block;font-size:40px;line-height:54px;text-align:center}
 /* --- kopyalanan oyun stilleri --- */
@@ -321,6 +331,21 @@ body.aslan-mode.vip-gold #roachWrap svg{filter:drop-shadow(0 0 12px rgba(251,191
 <div class="full" id="settings" hidden role="dialog" aria-modal="true" aria-label="Ayarlar"><div class="gin"><div class="gtop"><b>⚙️ Ayarlar</b><button type="button" class="btn" id="setClose">✕ Kapat</button></div><div id="setBody"></div></div></div>
 <div class="full" id="admin" hidden role="dialog" aria-modal="true" aria-label="Yönetici"><div class="gin"><div class="gtop"><b>🔐 Yönetici</b><button type="button" class="btn" id="admClose">✕ Kapat</button></div><div id="admBody"></div></div></div>
 <div class="dlg" id="admDlg" hidden role="alertdialog" aria-modal="true" aria-labelledby="admTitle" aria-describedby="admText"><div><h2 id="admTitle">Silinsin mi?</h2><p id="admNum">Adım 1 / 2</p><p id="admText"></p><div id="admType" hidden><label for="admIn">Onaylamak için <b>SİL</b> yaz</label><input id="admIn" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="8"></div><div id="admDlgErr" role="alert"></div><div class="row ctr"><button type="button" class="btn" id="admNo">Vazgeç</button><button type="button" class="btn red" id="admYes">Devam et</button></div></div></div>
+<div class="welcome" id="welcome" hidden role="dialog" aria-modal="true" aria-labelledby="wTitle"><div class="wbox">
+  <svg class="logo" viewBox="0 0 120 120" role="img" aria-label="Piksel Arena logosu">
+<defs><linearGradient id="lgw" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff4fa3"/><stop offset="1" stop-color="#6d4dff"/></linearGradient></defs>
+<path d="M60 4 108 31v58L60 116 12 89V31Z" fill="url(#lgw)" stroke="#ffd23f" stroke-width="5" stroke-linejoin="round"/>
+<g fill="#fff"><path d="M38 34h34v8h8v8h8v14h-8v8h-8v8H50v14H38Zm12 12v22h20v-4h6V50h-6v-4Z" fill-rule="evenodd"/></g>
+<g fill="#2ee6d6"><rect x="80" y="76" width="9" height="9"/><rect x="68" y="86" width="9" height="9"/><rect x="82" y="92" width="6" height="6"/></g></svg>
+  <h2 id="wTitle">Piksel Arena’yı kur</h2>
+  <p id="wText">Ana ekranına ekle, uygulama gibi tek dokunuşla aç.</p>
+  <ul id="wPerks"><li>📱 Tam ekran açılır</li><li>📶 Oyunlar internetsiz de çalışır</li><li>🏆 39 oyun, çevrimiçi sıralama</li></ul>
+  <div id="wHelp" hidden><ol id="wSteps"></ol><p class="note" id="wNote"></p></div>
+  <button type="button" class="btn pri wbig" id="wInstall">📲 Ana ekrana ekle</button>
+  <button type="button" class="btn pri wbig" id="wCopy" hidden>🔗 Linki kopyala</button>
+  <p id="wLink" hidden></p>
+  <button type="button" id="wSkip">Şimdilik tarayıcıda devam et</button>
+</div></div>
 <div class="dlg" id="instDlg" hidden role="dialog" aria-modal="true" aria-labelledby="instTitle"><div><h2 id="instTitle">Uygulama olarak yükle</h2><ol id="instSteps"></ol><p class="note" id="instNote"></p><div class="row ctr"><button type="button" class="btn pri" id="instOk">Tamam</button></div></div></div>
 <div class="dlg" id="noteDlg" hidden role="alertdialog" aria-modal="true" aria-labelledby="noteTitle" aria-describedby="noteText"><div><h2 id="noteTitle">Bildirim</h2><p id="noteText"></p><div class="row ctr"><button type="button" class="btn pri" id="noteOk">Tamam</button></div></div></div>
 <div class="dlg" id="rstDlg" hidden role="alertdialog" aria-modal="true" aria-labelledby="rstTitle" aria-describedby="rstText"><div><h2 id="rstTitle">Skor sıfırlansın mı?</h2><p id="rstNum">Adım 1 / 2</p><p id="rstText"></p><div id="rstType" hidden><label for="rstIn">Onaylamak için <b>SIFIRLA</b> yaz</label><input id="rstIn" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="12"></div><div id="rstErr" role="alert"></div><div class="row ctr"><button type="button" class="btn" id="rstNo">Vazgeç</button><button type="button" class="btn red" id="rstYes">Devam et</button></div></div></div>
@@ -2790,15 +2815,19 @@ function canWeb(){return /^https?:$/.test(location.protocol)&&window.isSecureCon
 function syncInstall(){$('#instRow').hidden=installed||isApp()||!canWeb()}
 if(canWeb()&&'serviceWorker' in navigator)window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})});
 if(isApp()&&navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(function(){});
-window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();installEvt=e;installed=false;syncInstall()});
-window.addEventListener('appinstalled',function(){installEvt=null;installed=true;syncInstall();instClose();toast('✅ Yüklendi! Ana ekrandaki simgeden açabilirsin.')});
-function instHelp(){
+window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();installEvt=e;installed=false;syncInstall();welcomeReady()});
+window.addEventListener('appinstalled',function(){installEvt=null;installed=true;syncInstall();instClose();if(!$('#welcome').hidden)return welcomeDone();toast('✅ Yüklendi! Ana ekrandaki simgeden açabilirsin.')});
+function instStepList(){
   var ios=isIOS(),android=/android/i.test(navigator.userAgent);
   var steps=ios?['Bu sayfayı <b>Safari</b>’de aç.','<b>Paylaş</b> düğmesine dokun (kare ve yukarı ok). Göremiyorsan önce <b>•••</b> menüsünü aç.','Listeden <b>Ana Ekrana Ekle</b>’yi seç.','<b>Ekle</b>’ye dokun.']
     :android?['Bu sayfayı <b>Chrome</b>’da aç.','Sağ üstteki <b>⋮</b> menüsüne dokun.','<b>Uygulamayı yükle</b> ya da <b>Ana ekrana ekle</b>’yi seç.','<b>Yükle</b>’ye dokun.']
     :['Bu sayfayı <b>Chrome</b> ya da <b>Edge</b>’de aç.','Adres çubuğundaki <b>yükle</b> simgesine ya da tarayıcı menüsüne tıkla.','<b>Uygulamayı yükle</b>’yi seç.'];
-  $('#instSteps').innerHTML=steps.map(function(t){return '<li>'+t+'</li>'}).join('');
-  $('#instNote').textContent='Zaten yüklediysen ana ekrandaki simgeden aç.'+(ios&&pname()?' iPhone’da yüklenen uygulama Safari’den ayrı kayıt tutabilir; adın ve skorların oraya geçmeyebilir. Uygulamada adın “alınmış” görünürse burada Ayarlar → “Beni sıralamadan sil” de (online skorların da silinir), sonra uygulamada adını yaz.':'');
+  return steps.map(function(t){return '<li>'+t+'</li>'}).join('');
+}
+function iosNote(){if(!isIOS())return '';return pname()?'iPhone’da yüklenen uygulama Safari’den ayrı kayıt tutabilir; adın ve skorların oraya geçmeyebilir. Uygulamada adın “alınmış” görünürse burada Ayarlar → “Beni sıralamadan sil” de (online skorların da silinir), sonra uygulamada adını yaz.':'Adını, yükledikten sonra uygulamanın içinde seç.'}
+function instHelp(){
+  $('#instSteps').innerHTML=instStepList();
+  $('#instNote').textContent=('Zaten yüklediysen ana ekrandaki simgeden aç. '+iosNote()).trim();
   if($('#instDlg').hidden){try{history.pushState({i:1},'')}catch(e){}$('#instDlg').hidden=false}$('#instOk').focus();
 }
 function instClose(fromBack){if($('#instDlg').hidden)return;if(fromBack!==true)popBack('i');$('#instDlg').hidden=true}
@@ -2808,6 +2837,35 @@ $('#hInstall').onclick=function(){
   try{ev.prompt()}catch(e){return instHelp()}
 };
 $('#instOk').onclick=function(){instClose()};
+
+/* --- linke ilk girişte: uygulamayı kur ekranı --- */
+function isInApp(){return /Instagram|FBAN|FBAV|FB_IAB|Line\/|; wv\)/i.test(navigator.userAgent)}
+function welcomeNeeded(){return canWeb()&&!isApp()&&lsGet('welcome')!=='1'}
+function welcomeOpen(){
+  var inApp=isInApp();
+  if(inApp){$('#wText').textContent='Bu pencereden kurulamıyor. Linki '+(isIOS()?'Safari':'Chrome')+' ile aç, sonra ana ekrana ekle.';$('#wCopy').hidden=false;$('#wInstall').hidden=true}
+  $('#welcome').hidden=false;(inApp?$('#wCopy'):$('#wInstall')).focus({preventScroll:true});
+}
+/* tarayıcı tek dokunuşla kurmaya sonradan hazır olursa düğme geri gelir */
+function welcomeReady(){if($('#welcome').hidden||isInApp()||$('#wHelp').hidden)return;$('#wInstall').hidden=false;$('#wInstall').textContent='📲 Şimdi ana ekrana ekle';$('#wHelp').hidden=true}
+function welcomeDone(){
+  $('#wTitle').textContent='Kuruldu! 🎉';$('#wText').textContent='Birazdan ana ekranında Piksel Arena simgesi görünecek; oradan açabilirsin.';
+  $('#wInstall').hidden=true;$('#wHelp').hidden=true;$('#wPerks').hidden=true;$('#wSkip').textContent='Burada devam et';
+}
+function welcomeClose(){
+  if($('#welcome').hidden)return;lsSet('welcome','1');$('#welcome').hidden=true;
+  if(!pname()&&lsGet('optout')!=='1')nameAsk();
+}
+$('#wInstall').onclick=function(){
+  if(installEvt){var ev=installEvt;installEvt=null;
+    try{ev.prompt();if(ev.userChoice)ev.userChoice.then(function(r){if(r&&r.outcome==='accepted')welcomeDone()});return}catch(e){}}
+  $('#wSteps').innerHTML=instStepList();$('#wNote').textContent=iosNote();$('#wHelp').hidden=false;this.hidden=true;
+};
+$('#wCopy').onclick=function(){var b=this,url=location.href;
+  function fail(){$('#wLink').textContent=url;$('#wLink').hidden=false}
+  if(!navigator.clipboard)return fail();
+  navigator.clipboard.writeText(url).then(function(){b.textContent='✅ Link kopyalandı'},fail)};
+$('#wSkip').onclick=welcomeClose;
 syncInstall();
 
 /* ================= SALON ================= */
@@ -2879,11 +2937,12 @@ $('#gClose').onclick=function(){hideGame();popBack('g')};
 /* geri tuşu yalnız üstteki küçük pencereyi kapatınca, alttaki ekranın geçmiş kaydı geri konur */
 function rePush(){var k=!$('#admin').hidden?'a':!$('#board').hidden?'b':!$('#settings').hidden?'s':!$('#gameOv').hidden?'g':'';if(k){var st={};st[k]=1;try{history.pushState(st,'')}catch(e){}}}
 window.addEventListener('popstate',function(){if(skipPop>0){skipPop--;return}if(!$('#instDlg').hidden){instClose(true);return}if(!$('#board').hidden)boardClose(true);else if(!$('#noteDlg').hidden){$('#noteDlg').hidden=true;rePush()}else if(!$('#admDlg').hidden){admDlgClose();rePush()}else if(!$('#admin').hidden){if(ADM.busy)rePush();else admClose(true)}else if(!$('#rstDlg').hidden){rstClose();try{history.pushState({s:1},'')}catch(e){}}else if(!$('#delDlg').hidden){delClose();try{history.pushState({s:1},'')}catch(e){}}else if(!$('#settings').hidden)setClose(true);else if(!$('#gameOv').hidden)hideGame()});
-document.addEventListener('keydown',function(e){if(e.key!=='Escape'||!$('#nameDlg').hidden)return;if(!$('#instDlg').hidden){instClose();return}if(!$('#board').hidden)boardClose();else if(!$('#noteDlg').hidden)$('#noteDlg').hidden=true;else if(!$('#admDlg').hidden)admDlgClose();else if(!$('#admin').hidden)admClose();else if(!$('#rstDlg').hidden)rstClose();else if(!$('#delDlg').hidden)delClose();else if(!$('#settings').hidden)setClose();else if(!$('#gameOv').hidden)$('#gClose').click()});
+document.addEventListener('keydown',function(e){if(e.key!=='Escape'||!$('#nameDlg').hidden)return;if(!$('#instDlg').hidden){instClose();return}if(!$('#welcome').hidden){welcomeClose();return}if(!$('#board').hidden)boardClose();else if(!$('#noteDlg').hidden)$('#noteDlg').hidden=true;else if(!$('#admDlg').hidden)admDlgClose();else if(!$('#admin').hidden)admClose();else if(!$('#rstDlg').hidden)rstClose();else if(!$('#delDlg').hidden)delClose();else if(!$('#settings').hidden)setClose();else if(!$('#gameOv').hidden)$('#gClose').click()});
 document.addEventListener('pointerdown',function once(){unlockAudio();document.removeEventListener('pointerdown',once)});
 $('#bSel').innerHTML=GAMES.map(function(g){return '<option value="'+g.id+'">'+g.ic+' '+g.t+'</option>'}).join('');
 applySettings();cat=CATS.some(function(c){return c[0]===pref('startcat')})?pref('startcat'):'all';syncName();renderHub();
-if(pname())queueSync();else if(lsGet('optout')!=='1')nameAsk();
+if(welcomeNeeded())welcomeOpen();
+if(pname())queueSync();else if(lsGet('optout')!=='1'&&$('#welcome').hidden)nameAsk();
 
 </script>
 </body>
