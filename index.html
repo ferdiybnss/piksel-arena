@@ -401,7 +401,7 @@ function hideGame(){
 function syncSound(){var on=soundOn();$('#gSound').textContent=on?'🔊':'🔇';$('#hSound').textContent=on?'🔊 Ses':'🔇 Sessiz'}
 function toggleSound(){S.settings.sound=!soundOn();lsSet('sound',soundOn()?'1':'0');syncSound();if(soundOn())synthPop(520,780,.1,'triangle')}
 
-var LB_CFG={url:'https://eptutkvqfggsxzdxunbe.supabase.co',key:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVwdHV0a3ZxZmdnc3h6ZHh1bmJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU2MDU2MDMsImV4cCI6MjExMTE4MTYwM30.feSgf4QOJXJwDTiVjqY6nkhZakfwXRctXp3l6PyEVyE'};
+var LB_CFG={url:'https://ykkzyfzfmzolwlpbbpwo.supabase.co',key:'sb_publishable_MBoOGleBDFGzqAU4pti9zQ_yj1RSViC'};
 function synthPop(f1,f2,dur,type){
   if(!soundOn())return;
   var c=actx();if(!c)return;var t=c.currentTime,o=c.createOscillator(),g=c.createGain();
@@ -2451,9 +2451,11 @@ function pname(){return lsGet('name')||''}
 function secret(){var k=lsGet('key');if(!k){var a=new Uint8Array(24);if(window.crypto&&crypto.getRandomValues)crypto.getRandomValues(a);else for(var i=0;i<24;i++)a[i]=Math.random()*256;
   k=Array.prototype.map.call(a,function(x){return ('0'+x.toString(16)).slice(-2)}).join('');lsSet('key',k)}return k}
 function esc(t){return String(t).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+/* yeni tip "publishable" anahtar yalnızca apikey başlığıyla gönderilir; eski "anon" anahtarı (eyJ…) iki başlıkla */
+function apiHeaders(k){var h={'apikey':k,'Content-Type':'application/json'};if(k.indexOf('eyJ')===0)h.Authorization='Bearer '+k;return h}
 function rpc(fn,body){
   var ctl=window.AbortController?new AbortController():null,tm=ctl&&setTimeout(function(){ctl.abort()},10000);
-  return fetch(LB_CFG.url+'/rest/v1/rpc/'+fn,{method:'POST',signal:ctl&&ctl.signal,headers:{'apikey':LB_CFG.key,'Authorization':'Bearer '+LB_CFG.key,'Content-Type':'application/json'},body:JSON.stringify(body)})
+  return fetch(LB_CFG.url+'/rest/v1/rpc/'+fn,{method:'POST',signal:ctl&&ctl.signal,headers:apiHeaders(LB_CFG.key),body:JSON.stringify(body)})
     .then(function(r){clearTimeout(tm);if(r.ok)return r.json();var e=new Error('http');e.setup=r.status===404;throw e},function(x){clearTimeout(tm);throw x});
 }
 function netMsg(e){return e&&e.setup?'Çevrimiçi sıralama henüz kurulmadı (veritabanı kurulum dosyası çalıştırılmalı). Skorların cihazda saklanıyor, kurulunca gönderilecek.':'Sunucuya ulaşılamadı. İnternetini kontrol et; skorların cihazda saklanıyor.'}
