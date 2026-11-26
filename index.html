@@ -149,7 +149,7 @@ body[data-view=list] .fav{top:50%;transform:translateY(-50%);right:8px;font-size
 .danger select.search{margin-bottom:12px}
 /* yönetici */
 .admlink{margin-top:18px}
-#admForm input,#admIn,#admQ{width:100%;padding:12px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:inherit;text-align:center;font-weight:800;font-size:17px}
+#admForm input,#admIn,#admVal,#admQ{width:100%;padding:12px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:inherit;text-align:center;font-weight:800;font-size:17px}
 #admQ{margin-bottom:10px}#admErr,#admDlgErr{min-height:20px;margin:8px 0;font-size:13.5px;font-weight:700;text-align:center}
 #admBody h3{text-align:center;margin:12px 0}
 .admlist{list-style:none;margin:0;padding:0}.admrow{margin-bottom:6px;display:flex;align-items:center;gap:10px;background:var(--surface);border:2px solid var(--line);border-radius:12px;padding:8px 10px}
@@ -177,6 +177,7 @@ html,body{overscroll-behavior-y:contain}
 .vers .row{flex-wrap:wrap;gap:8px}
 body:has(#upBar:not([hidden])) .wrap{padding-bottom:110px}
 body:has(#upBar:not([hidden])) .toast{bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+#admValWrap label{display:block;text-align:center;font-weight:800;margin-bottom:6px}.admrow{gap:8px}.admrow .btn{min-width:44px;min-height:40px}
 
 .gemico{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:center;font-size:38px}.shipico{display:block;font-size:40px;line-height:54px;text-align:center}
 /* --- kopyalanan oyun stilleri --- */
@@ -337,7 +338,7 @@ body.aslan-mode.vip-gold #roachWrap svg{filter:drop-shadow(0 0 12px rgba(251,191
   <select class="search" id="bSel" aria-label="Oyun seç"></select><div id="bBody"></div></div></div>
 <div class="full" id="settings" hidden role="dialog" aria-modal="true" aria-label="Ayarlar"><div class="gin"><div class="gtop"><b>⚙️ Ayarlar</b><button type="button" class="btn" id="setClose">✕ Kapat</button></div><div id="setBody"></div></div></div>
 <div class="full" id="admin" hidden role="dialog" aria-modal="true" aria-label="Yönetici"><div class="gin"><div class="gtop"><b>🔐 Yönetici</b><button type="button" class="btn" id="admClose">✕ Kapat</button></div><div id="admBody"></div></div></div>
-<div class="dlg" id="admDlg" hidden role="alertdialog" aria-modal="true" aria-labelledby="admTitle" aria-describedby="admText"><div><h2 id="admTitle">Silinsin mi?</h2><p id="admNum">Adım 1 / 2</p><p id="admText"></p><div id="admType" hidden><label for="admIn">Onaylamak için <b>SİL</b> yaz</label><input id="admIn" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="8"></div><div id="admDlgErr" role="alert"></div><div class="row ctr"><button type="button" class="btn" id="admNo">Vazgeç</button><button type="button" class="btn red" id="admYes">Devam et</button></div></div></div>
+<div class="dlg" id="admDlg" hidden role="alertdialog" aria-modal="true" aria-labelledby="admTitle" aria-describedby="admText"><div><h2 id="admTitle">Silinsin mi?</h2><p id="admNum">Adım 1 / 2</p><p id="admText"></p><div id="admValWrap" hidden><label for="admVal" id="admValLbl">Yeni skor</label><input id="admVal" autocomplete="off" inputmode="numeric" maxlength="11"></div><div id="admType" hidden><label for="admIn">Onaylamak için <b>SİL</b> yaz</label><input id="admIn" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="8"></div><div id="admDlgErr" role="alert"></div><div class="row ctr"><button type="button" class="btn" id="admNo">Vazgeç</button><button type="button" class="btn red" id="admYes">Devam et</button></div></div></div>
 <div class="welcome" id="welcome" hidden role="dialog" aria-modal="true" aria-labelledby="wTitle"><div class="wbox">
   <svg class="logo" viewBox="0 0 120 120" role="img" aria-label="Piksel Arena logosu">
 <defs><linearGradient id="lgw" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff4fa3"/><stop offset="1" stop-color="#6d4dff"/></linearGradient></defs>
@@ -2482,19 +2483,30 @@ function localScore(g){var v=OLD_SCORE[g]?OLD_SCORE[g]():bget(g);if(v===null||!i
 var UNIT={dcargo:'puan',dgate:'halka',dsearch:'puan',dscout:'puan',squash:'puan',football:'gol',cups:'puan',skill:'. seviye',lingo:'kelime',snake:'puan',tetris:'satır',tower:'kat',memory:'tur',mines:'tarla',race:'sn',pong:'galibiyet',pair:'hamle',slide:'hamle',guess:'deneme',lights:'. bölüm',sudoku:'bulmaca',hang:'seri',xox:'galibiyet',four:'galibiyet',ship:'galibiyet',rps:'galibiyet',run:'m',flap:'boru',car:'araç',road:'geçiş'};
 function fmt(g,v){v=Math.abs(+v);if(g==='race')return (v/1000).toFixed(2)+' sn';var u=Object.prototype.hasOwnProperty.call(UNIT,g)?UNIT[g]:'puan';return v.toLocaleString('tr-TR')+(u.charAt(0)==='.'?u:' '+u)}
 
-/* --- yöneticinin sildikleri: skorlar gönderilmeden önce bu telefonda da temizlenir --- */
+/* --- yöneticinin sildikleri ve düzenledikleri: skorlar gönderilmeden önce bu telefonda da uygulanır --- */
+var RV_BEST={snake:1,tetris:1,tower:1,memory:1};
+/* sunucudaki değeri (az olan iyi oyunlarda eksi) cihazdaki kayda yazar */
+function setLocal(id,v){
+  var a=Math.abs(+v);lsSet('sent-'+id,+v);
+  if(id==='lingo'){var x=lstat();x.w=a;x.p=Math.max(x.p||0,a);lsSet('hb-lingo',JSON.stringify(x))}
+  else if(id==='mines'||RV_BEST[id]){var r=rvGet(id);r[id==='mines'?'w':'best']=a;rvSave(id,r)}
+  else lsSet(OLD_KEY[id]||'best-'+id,a);
+}
 function applyOrders(){
   var key=secret();
   return rpc('arcade_pending',{p_secret:key}).then(function(L){
     if(!L||!L.length)return false;
-    var last=+(lsGet('order')||0),top=0,gone=false,all=false,names=[];
+    var last=+(lsGet('order')||0),top=0,gone=false,all=false,ch={};/* ch: oyun -> yeni değer, silindiyse null */
     L.forEach(function(o){var id=+o.id;top=Math.max(top,id);if(id<=last)return;
       if(o.kind==='delete')gone=true;
-      else if(o.game){wipeLocal(o.game);var g=gameOf(o.game);names.push(g?g.t:o.game)}
-      else{GAMES.forEach(function(g){wipeLocal(g.id)});all=true}});
+      else if(o.kind==='set'){if(gameOf(o.game)&&+o.value){setLocal(o.game,o.value);ch[o.game]=+o.value}}
+      else if(o.game){wipeLocal(o.game);ch[o.game]=null}
+      else{GAMES.forEach(function(g){wipeLocal(g.id)});all=true;ch={}}});
     if(gone){GAMES.forEach(function(g){wipeLocal(g.id)});lsSet('optout','1');['name','reg','key'].forEach(lsDel)}
     lsSet('order',top);
-    var msg=gone?'Yönetici seni sıralamadan sildi. Bu telefondaki skorların da temizlendi. İstersen “Adını seç” düğmesiyle yeniden katılabilirsin.':all?'Yönetici bütün skorlarını sildi.':names.length?'Yönetici şu skorlarını sildi: '+names.join(', ')+'.':'';
+    var del=[],ed=[];Object.keys(ch).forEach(function(k){var g=gameOf(k),n=g?g.t:k;if(ch[k]===null)del.push(n);else ed.push(n+' → '+fmt(k,ch[k]))});
+    var msg=gone?'Yönetici seni sıralamadan sildi. Bu telefondaki skorların da temizlendi. İstersen “Adını seç” düğmesiyle yeniden katılabilirsin.':
+      [all?'Yönetici bütün skorlarını sildi.':'',del.length?'Yönetici şu skorlarını sildi: '+del.join(', ')+'.':'',ed.length?'Yönetici şu skorlarını düzenledi: '+ed.join(', ')+'.':''].filter(Boolean).join(' ');
     if(msg){$('#noteText').textContent=msg;$('#noteDlg').hidden=false;if(gone)$('#nameDlg').hidden=true;syncName();if($('#gameOv').hidden)renderHub()}
     /* bildirim onaylanamazsa sunucu o skorları kabul etmez; sonraki eşitlemede yeniden denenir */
     return rpc('arcade_ack',{p_secret:key,p_upto:top}).then(function(){return gone});
@@ -2755,7 +2767,7 @@ function admLogin(msg){
 }
 function admList(){
   ADM.cur=null;ADM.req++;
-  $('#admBody').innerHTML='<p class="note">'+ADM.list.length+' oyuncu. Skorlarını görmek ve silmek için birine dokun.</p><input class="search" id="admQ" type="search" placeholder="Oyuncu ara…" aria-label="Oyuncu ara"><div id="admRows"></div>';
+  $('#admBody').innerHTML='<p class="note">'+ADM.list.length+' oyuncu. Skorlarını görmek, düzenlemek ve silmek için birine dokun.</p><input class="search" id="admQ" type="search" placeholder="Oyuncu ara…" aria-label="Oyuncu ara"><div id="admRows"></div>';
   $('#admQ').value=ADM.q;admRows();
 }
 function admRows(){
@@ -2768,7 +2780,7 @@ function admPlayer(id){
   $('#admBody').innerHTML=head+'<p class="empty">Yükleniyor…</p>';
   rpc('arcade_player',{p_id:+p.id}).then(function(R){
     if(req!==ADM.req)return;
-    $('#admBody').innerHTML=head+(R.length?'<ul class="admlist">'+R.map(function(r){var g=gameOf(r.game),n=g?g.t:r.game;return '<li class="admrow"><span class="p">'+(g?g.ic:'🎮')+'</span><span class="n">'+esc(n)+'<small>'+fmt(r.game,r.score)+' · '+(+r.pos)+'. sırada</small></span><button type="button" class="btn red" data-adm="score" data-g="'+esc(r.game)+'" aria-label="'+esc(n)+' skorunu sil">Sil</button></li>'}).join('')+'</ul>':'<p class="empty">Bu oyuncunun skoru yok.</p>')+
+    $('#admBody').innerHTML=head+(R.length?'<ul class="admlist">'+R.map(function(r){var g=gameOf(r.game),n=g?g.t:r.game;return '<li class="admrow"><span class="p">'+(g?g.ic:'🎮')+'</span><span class="n">'+esc(n)+'<small>'+fmt(r.game,r.score)+' · '+(+r.pos)+'. sırada</small></span><button type="button" class="btn" data-adm="edit" data-g="'+esc(r.game)+'" data-v="'+(+r.score)+'" aria-label="'+esc(n)+' skorunu düzenle">✏️</button><button type="button" class="btn red" data-adm="score" data-g="'+esc(r.game)+'" aria-label="'+esc(n)+' skorunu sil">Sil</button></li>'}).join('')+'</ul>':'<p class="empty">Bu oyuncunun skoru yok.</p>')+
       '<div class="admact">'+(R.length?'<button type="button" class="btn red" data-adm="scores">↺ Tüm skorlarını sil</button>':'')+'<button type="button" class="btn red" data-adm="player">🗑️ Oyuncuyu sil</button></div>';
   }).catch(function(e){if(req===ADM.req)$('#admBody').innerHTML=head+'<p class="warn">'+admErrText(e)+'</p>'});
 }
@@ -2777,44 +2789,69 @@ $('#admBody').onclick=function(e){
   if(b.dataset.p)return admPlayer(b.dataset.p);
   var a=b.dataset.adm;if(!a)return;
   if(a==='back')return admList();
-  admAsk(a,b.dataset.g||null);
+  admAsk(a,b.dataset.g||null,+b.dataset.v||0);
 };
 $('#admBody').oninput=function(e){if(e.target.id==='admQ'){ADM.q=e.target.value;admRows()}};
 
+/* --- skor değeri: ekranda yazılan <-> sunucudaki biçim --- */
+function admUnit(game){if(game==='race')return 'saniye';return (Object.prototype.hasOwnProperty.call(UNIT,game)?UNIT[game]:'puan').replace(/^\.\s*/,'')}
+function admInputText(game,v){v=Math.abs(v);return game==='race'?String(v/1000).replace('.',','):String(v)}
+/* yazılanı sayıya çevirir (hız yarışında saniye -> milisaniye); geçersizse null. İşaret eski skordan alınır. */
+function admParse(game,t,old){
+  t=String(t).trim();var n;
+  if(game==='race'){if(!/^\d{1,5}([.,]\d{1,3})?$/.test(t))return null;n=Math.round(parseFloat(t.replace(',','.'))*1000)}
+  else{if(!/^(\d{1,9}|\d{1,3}(\.\d{3}){1,2})$/.test(t))return null;n=+t.replace(/\./g,'')}
+  return n>0&&n<=999999999?(old<0?-n:n):null;
+}
+
 /* --- 2 aşamalı onay --- */
-function admAsk(mode,game){
-  var g=game&&gameOf(game),who='“'+ADM.cur.name+'” oyuncusunun ';
-  ADM.act={mode:mode,game:game,id:+ADM.cur.id,
-    text:mode==='score'?who+'“'+(g?g.t:game)+'” skoru silinecek.':mode==='scores'?who+'bütün skorları silinecek. Adı kalır.':'“'+ADM.cur.name+'” oyuncusu ve bütün skorları silinecek. Adı boşa çıkar.',
-    done:mode==='player'?'Oyuncu silindi.':mode==='scores'?'Oyuncunun skorları silindi.':'Skor silindi.'};
-  admStep(1);$('#admDlg').hidden=false;$('#admNo').focus();
+function admAsk(mode,game,old){
+  var g=game&&gameOf(game),gn=g?g.t:game,who='“'+ADM.cur.name+'” oyuncusunun ';
+  ADM.act={mode:mode,game:game,gname:gn,id:+ADM.cur.id,old:old,score:null,
+    text:mode==='score'?who+'“'+gn+'” skoru silinecek.':mode==='scores'?who+'bütün skorları silinecek. Adı kalır.':'“'+ADM.cur.name+'” oyuncusu ve bütün skorları silinecek. Adı boşa çıkar.',
+    done:mode==='edit'?'Skor güncellendi.':mode==='player'?'Oyuncu silindi.':mode==='scores'?'Oyuncunun skorları silindi.':'Skor silindi.'};
+  $('#admDlg').hidden=false;
+  if(mode==='edit'){$('#admVal').value=admInputText(game,old);$('#admVal').inputMode=game==='race'?'decimal':'numeric'}
+  admStep(1);
+  if(mode==='edit'){$('#admVal').focus();$('#admVal').select()}else $('#admNo').focus();
 }
 function admStep(n){
-  ADM.step=n;$('#admTitle').textContent=n===1?'Silinsin mi?':'Son onay';$('#admNum').textContent='Adım '+n+' / 2';
-  $('#admText').textContent=ADM.act.text+(n===1?' Oyuncunun telefonundaki ilgili kayıt da temizlenecek.':' Bu işlem geri alınamaz.');
-  $('#admType').hidden=n!==2;$('#admIn').value='';$('#admDlgErr').textContent='';
-  $('#admYes').textContent=n===1?'Devam et':'Sil';$('#admYes').disabled=n===2;
-  if(n===2)$('#admIn').focus();
+  var a=ADM.act,ed=a.mode==='edit',who='“'+ADM.cur.name+'” oyuncusunun “'+a.gname+'” skoru';
+  ADM.step=n;$('#admTitle').textContent=n===2?'Son onay':ed?'Skoru düzenle':'Silinsin mi?';$('#admNum').textContent='Adım '+n+' / 2';
+  $('#admText').textContent=!ed?a.text+(n===1?' Oyuncunun telefonundaki ilgili kayıt da temizlenecek.':' Bu işlem geri alınamaz.'):
+    n===1?who+': '+fmt(a.game,a.old)+(a.old<0?'. Bu oyunda az olan daha iyidir.':''):
+    who+' '+fmt(a.game,a.old)+' yerine '+fmt(a.game,a.score)+' olacak. Oyuncunun telefonundaki kayıt da değişecek.';
+  $('#admValWrap').hidden=!(ed&&n===1);$('#admValLbl').textContent='Yeni skor ('+(ed?admUnit(a.game):'')+')';
+  $('#admType').hidden=ed||n!==2;$('#admIn').value='';$('#admDlgErr').textContent='';
+  $('#admYes').textContent=n===1?'Devam et':ed?'Kaydet':'Sil';$('#admYes').className='btn '+(ed?'pri':'red');
+  $('#admYes').disabled=ed?n===1&&!admValOk():n===2;
+  if(n===2){if(ed)$('#admNo').focus();else $('#admIn').focus()}
 }
+function admValOk(){var a=ADM.act,v=admParse(a.game,$('#admVal').value,a.old);return v!==null&&v!==a.old?v:null}
 function admTyped(){return $('#admIn').value.trim().replace(/[iıİ]/g,'I').toUpperCase()==='SIL'}
 function admDlgClose(){if(!ADM.busy)$('#admDlg').hidden=true}
-function admLock(on){ADM.busy=on;$('#admYes').disabled=$('#admNo').disabled=$('#admIn').disabled=on}
+function admLock(on){ADM.busy=on;$('#admYes').disabled=$('#admNo').disabled=$('#admIn').disabled=$('#admVal').disabled=on}
 function admGo(){
   if(ADM.busy)return;
-  if(ADM.step===1)return admStep(2);
-  if(!admTyped())return;
-  var a=ADM.act,gone=false;admLock(true);$('#admDlgErr').textContent='Siliniyor…';
-  rpc('arcade_admin_remove',{p_pass:ADM.pass,p_player:a.id,p_mode:a.mode,p_game:a.game}).then(function(st){
+  var a=ADM.act,ed=a.mode==='edit';
+  if(ADM.step===1){if(ed){var v=admValOk();if(v===null)return;a.score=v}return admStep(2)}
+  if(!ed&&!admTyped())return;
+  var gone=false;admLock(true);$('#admDlgErr').textContent=ed?'Kaydediliyor…':'Siliniyor…';
+  var call=ed?rpc('arcade_admin_edit',{p_pass:ADM.pass,p_player:a.id,p_game:a.game,p_score:a.score}):rpc('arcade_admin_remove',{p_pass:ADM.pass,p_player:a.id,p_mode:a.mode,p_game:a.game});
+  call.then(function(st){
     if(st==='bad'||st==='locked'||st==='unset'){admLock(false);admDlgClose();return admLogin(ADM_MSG[st])}
     if(st!=='ok'&&st!=='notfound')throw new Error('admin');
     gone=st==='notfound';
     return rpc('arcade_admin_players',{p_pass:ADM.pass}).then(function(r){
-      admLock(false);admDlgClose();toast(gone?'Bu kayıt zaten silinmiş.':a.done);queueSync();
+      admLock(false);admDlgClose();toast(gone?(ed?'Bu skor artık yok.':'Bu kayıt zaten silinmiş.'):a.done);queueSync();
       if(r.status!=='ok')return admLogin(ADM_MSG[r.status]);
       ADM.list=r.players;if(a.mode==='player')admList();else admPlayer(a.id);
     });
-  }).catch(function(e){admLock(false);$('#admDlgErr').textContent=admErrText(e)+' (İşlemin yapılıp yapılmadığını listeden kontrol et.)'});
+  }).catch(function(e){admLock(false);
+    $('#admDlgErr').textContent=ed&&e&&e.setup?'Skor düzenleme için yeni SQL dosyasını Supabase’de bir kez çalıştırmalısın.':admErrText(e)+' (İşlemin yapılıp yapılmadığını listeden kontrol et.)'});
 }
+$('#admVal').oninput=function(){$('#admYes').disabled=admValOk()===null};
+$('#admVal').onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();admGo()}};
 $('#admNo').onclick=admDlgClose;$('#admYes').onclick=admGo;
 $('#admIn').oninput=function(){$('#admYes').disabled=!admTyped()};
 $('#admIn').onkeydown=function(e){if(e.key==='Enter')admGo()};
