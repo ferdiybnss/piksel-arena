@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#120a2a">
 <title>Piksel Arena</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Piksel Arena">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%20120%22%20role%3D%22img%22%20aria-label%3D%22Piksel%20Arena%20logosu%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22lg%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23ff4fa3%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%236d4dff%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath%20d%3D%22M60%204%20108%2031v58L60%20116%2012%2089V31Z%22%20fill%3D%22url%28%23lg%29%22%20stroke%3D%22%23ffd23f%22%20stroke-width%3D%225%22%20stroke-linejoin%3D%22round%22/%3E%3Cg%20fill%3D%22%23fff%22%3E%3Cpath%20d%3D%22M38%2034h34v8h8v8h8v14h-8v8h-8v8H50v14H38Zm12%2012v22h20v-4h6V50h-6v-4Z%22%20fill-rule%3D%22evenodd%22/%3E%3C/g%3E%3Cg%20fill%3D%22%232ee6d6%22%3E%3Crect%20x%3D%2280%22%20y%3D%2276%22%20width%3D%229%22%20height%3D%229%22/%3E%3Crect%20x%3D%2268%22%20y%3D%2286%22%20width%3D%229%22%20height%3D%229%22/%3E%3Crect%20x%3D%2282%22%20y%3D%2292%22%20width%3D%226%22%20height%3D%226%22/%3E%3C/g%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Nunito:wght@500;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
@@ -151,6 +157,9 @@ body[data-view=list] .fav{top:50%;transform:translateY(-50%);right:8px;font-size
 .admact{display:flex;flex-direction:column;gap:10px;align-items:center;margin-top:16px}
 #admDlg{align-items:flex-start;padding-top:max(8vh,env(safe-area-inset-top,0px))}#noteDlg{z-index:96}#noteDlg p{text-align:center}
 #admNum{margin:0 0 8px;text-align:center;font-size:12.5px;font-weight:800;color:var(--muted)}#admType label{display:block;text-align:center;margin-bottom:8px}
+/* uygulama olarak yükleme */
+html,body{overscroll-behavior-y:contain}
+#instRow{margin-top:8px;text-align:center}#instSteps{margin:0 0 12px;padding-left:22px}#instSteps li{margin-bottom:8px}
 
 .gemico{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:center;font-size:38px}.shipico{display:block;font-size:40px;line-height:54px;text-align:center}
 /* --- kopyalanan oyun stilleri --- */
@@ -296,6 +305,7 @@ body.aslan-mode.vip-gold #roachWrap svg{filter:drop-shadow(0 0 12px rgba(251,191
   <p><b id="count"></b> oyun · tek arena, tek sıralama</p>
   <div class="tools who"><button class="btn pri" id="hBoard">🏆 Sıralama</button><button class="btn" id="hName">👤</button></div>
   <div class="tools"><button class="btn" id="hRandom">🎲 Şansıma</button><button class="btn" id="hSound">🔊 Ses</button><button class="btn" id="hSet">⚙️ Ayarlar</button></div>
+  <div id="instRow" hidden><button type="button" class="btn pri" id="hInstall">📲 Telefona uygulama olarak yükle</button></div>
 </header>
 <main>
   <input class="search" id="q" type="search" placeholder="🔎 Oyun ara…" aria-label="Oyun ara">
@@ -311,6 +321,7 @@ body.aslan-mode.vip-gold #roachWrap svg{filter:drop-shadow(0 0 12px rgba(251,191
 <div class="full" id="settings" hidden role="dialog" aria-modal="true" aria-label="Ayarlar"><div class="gin"><div class="gtop"><b>⚙️ Ayarlar</b><button type="button" class="btn" id="setClose">✕ Kapat</button></div><div id="setBody"></div></div></div>
 <div class="full" id="admin" hidden role="dialog" aria-modal="true" aria-label="Yönetici"><div class="gin"><div class="gtop"><b>🔐 Yönetici</b><button type="button" class="btn" id="admClose">✕ Kapat</button></div><div id="admBody"></div></div></div>
 <div class="dlg" id="admDlg" hidden role="alertdialog" aria-modal="true" aria-labelledby="admTitle" aria-describedby="admText"><div><h2 id="admTitle">Silinsin mi?</h2><p id="admNum">Adım 1 / 2</p><p id="admText"></p><div id="admType" hidden><label for="admIn">Onaylamak için <b>SİL</b> yaz</label><input id="admIn" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="8"></div><div id="admDlgErr" role="alert"></div><div class="row ctr"><button type="button" class="btn" id="admNo">Vazgeç</button><button type="button" class="btn red" id="admYes">Devam et</button></div></div></div>
+<div class="dlg" id="instDlg" hidden role="dialog" aria-modal="true" aria-labelledby="instTitle"><div><h2 id="instTitle">Uygulama olarak yükle</h2><ol id="instSteps"></ol><p class="note" id="instNote"></p><div class="row ctr"><button type="button" class="btn pri" id="instOk">Tamam</button></div></div></div>
 <div class="dlg" id="noteDlg" hidden role="alertdialog" aria-modal="true" aria-labelledby="noteTitle" aria-describedby="noteText"><div><h2 id="noteTitle">Bildirim</h2><p id="noteText"></p><div class="row ctr"><button type="button" class="btn pri" id="noteOk">Tamam</button></div></div></div>
 <div class="dlg" id="rstDlg" hidden role="alertdialog" aria-modal="true" aria-labelledby="rstTitle" aria-describedby="rstText"><div><h2 id="rstTitle">Skor sıfırlansın mı?</h2><p id="rstNum">Adım 1 / 2</p><p id="rstText"></p><div id="rstType" hidden><label for="rstIn">Onaylamak için <b>SIFIRLA</b> yaz</label><input id="rstIn" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="12"></div><div id="rstErr" role="alert"></div><div class="row ctr"><button type="button" class="btn" id="rstNo">Vazgeç</button><button type="button" class="btn red" id="rstYes">Devam et</button></div></div></div>
 <div class="dlg" id="delDlg" hidden role="alertdialog" aria-modal="true" aria-labelledby="delTitle" aria-describedby="delText"><div><h2 id="delTitle">Sıralamadan silinsin mi?</h2><p id="delText"></p><label class="chk"><input type="checkbox" id="delWipe"> Bu telefondaki skorlarımı da sil</label><p class="note">İşaretlemezsen skorların telefonda kalır; yeniden ad seçersen sıralamaya tekrar gönderilir.</p><div id="delErr" role="alert"></div><div class="row ctr"><button type="button" class="btn" id="delNo">Vazgeç</button><button type="button" class="btn red" id="delYes">Evet, sil</button></div></div></div>
@@ -2770,6 +2781,35 @@ $('#admIn').onkeydown=function(e){if(e.key==='Enter')admGo()};
 $('#admClose').onclick=admClose;
 $('#noteOk').onclick=function(){$('#noteDlg').hidden=true};
 
+/* ================= TELEFONA UYGULAMA OLARAK YÜKLEME ================= */
+var installEvt=null,installed=false;
+function isApp(){return !!(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true}
+function isIOS(){return /iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1)}
+/* yalnızca bir web adresinden (https) açıldığında yüklenebilir; dosyadan açınca düğme görünmez */
+function canWeb(){return /^https?:$/.test(location.protocol)&&window.isSecureContext===true}
+function syncInstall(){$('#instRow').hidden=installed||isApp()||!canWeb()}
+if(canWeb()&&'serviceWorker' in navigator)window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})});
+if(isApp()&&navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(function(){});
+window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();installEvt=e;installed=false;syncInstall()});
+window.addEventListener('appinstalled',function(){installEvt=null;installed=true;syncInstall();instClose();toast('✅ Yüklendi! Ana ekrandaki simgeden açabilirsin.')});
+function instHelp(){
+  var ios=isIOS(),android=/android/i.test(navigator.userAgent);
+  var steps=ios?['Bu sayfayı <b>Safari</b>’de aç.','<b>Paylaş</b> düğmesine dokun (kare ve yukarı ok). Göremiyorsan önce <b>•••</b> menüsünü aç.','Listeden <b>Ana Ekrana Ekle</b>’yi seç.','<b>Ekle</b>’ye dokun.']
+    :android?['Bu sayfayı <b>Chrome</b>’da aç.','Sağ üstteki <b>⋮</b> menüsüne dokun.','<b>Uygulamayı yükle</b> ya da <b>Ana ekrana ekle</b>’yi seç.','<b>Yükle</b>’ye dokun.']
+    :['Bu sayfayı <b>Chrome</b> ya da <b>Edge</b>’de aç.','Adres çubuğundaki <b>yükle</b> simgesine ya da tarayıcı menüsüne tıkla.','<b>Uygulamayı yükle</b>’yi seç.'];
+  $('#instSteps').innerHTML=steps.map(function(t){return '<li>'+t+'</li>'}).join('');
+  $('#instNote').textContent='Zaten yüklediysen ana ekrandaki simgeden aç.'+(ios&&pname()?' iPhone’da yüklenen uygulama Safari’den ayrı kayıt tutabilir; adın ve skorların oraya geçmeyebilir. Uygulamada adın “alınmış” görünürse burada Ayarlar → “Beni sıralamadan sil” de (online skorların da silinir), sonra uygulamada adını yaz.':'');
+  if($('#instDlg').hidden){try{history.pushState({i:1},'')}catch(e){}$('#instDlg').hidden=false}$('#instOk').focus();
+}
+function instClose(fromBack){if($('#instDlg').hidden)return;if(fromBack!==true)popBack('i');$('#instDlg').hidden=true}
+$('#hInstall').onclick=function(){
+  if(!installEvt)return instHelp();
+  var ev=installEvt;installEvt=null;
+  try{ev.prompt()}catch(e){return instHelp()}
+};
+$('#instOk').onclick=function(){instClose()};
+syncInstall();
+
 /* ================= SALON ================= */
 function rvLabel(g){return function(){return 'Lig '+(rvGet(g).tier+1)+'/'+RANKS.length}}
 function recLabel(id,pre){return function(){var b=bget(id);return b===null?'Yeni':(pre||'Rekor')+': '+b}}
@@ -2838,8 +2878,8 @@ $('#hSound').onclick=toggleSound;$('#gSound').onclick=toggleSound;
 $('#gClose').onclick=function(){hideGame();popBack('g')};
 /* geri tuşu yalnız üstteki küçük pencereyi kapatınca, alttaki ekranın geçmiş kaydı geri konur */
 function rePush(){var k=!$('#admin').hidden?'a':!$('#board').hidden?'b':!$('#settings').hidden?'s':!$('#gameOv').hidden?'g':'';if(k){var st={};st[k]=1;try{history.pushState(st,'')}catch(e){}}}
-window.addEventListener('popstate',function(){if(skipPop>0){skipPop--;return}if(!$('#board').hidden)boardClose(true);else if(!$('#noteDlg').hidden){$('#noteDlg').hidden=true;rePush()}else if(!$('#admDlg').hidden){admDlgClose();rePush()}else if(!$('#admin').hidden){if(ADM.busy)rePush();else admClose(true)}else if(!$('#rstDlg').hidden){rstClose();try{history.pushState({s:1},'')}catch(e){}}else if(!$('#delDlg').hidden){delClose();try{history.pushState({s:1},'')}catch(e){}}else if(!$('#settings').hidden)setClose(true);else if(!$('#gameOv').hidden)hideGame()});
-document.addEventListener('keydown',function(e){if(e.key!=='Escape'||!$('#nameDlg').hidden)return;if(!$('#board').hidden)boardClose();else if(!$('#noteDlg').hidden)$('#noteDlg').hidden=true;else if(!$('#admDlg').hidden)admDlgClose();else if(!$('#admin').hidden)admClose();else if(!$('#rstDlg').hidden)rstClose();else if(!$('#delDlg').hidden)delClose();else if(!$('#settings').hidden)setClose();else if(!$('#gameOv').hidden)$('#gClose').click()});
+window.addEventListener('popstate',function(){if(skipPop>0){skipPop--;return}if(!$('#instDlg').hidden){instClose(true);return}if(!$('#board').hidden)boardClose(true);else if(!$('#noteDlg').hidden){$('#noteDlg').hidden=true;rePush()}else if(!$('#admDlg').hidden){admDlgClose();rePush()}else if(!$('#admin').hidden){if(ADM.busy)rePush();else admClose(true)}else if(!$('#rstDlg').hidden){rstClose();try{history.pushState({s:1},'')}catch(e){}}else if(!$('#delDlg').hidden){delClose();try{history.pushState({s:1},'')}catch(e){}}else if(!$('#settings').hidden)setClose(true);else if(!$('#gameOv').hidden)hideGame()});
+document.addEventListener('keydown',function(e){if(e.key!=='Escape'||!$('#nameDlg').hidden)return;if(!$('#instDlg').hidden){instClose();return}if(!$('#board').hidden)boardClose();else if(!$('#noteDlg').hidden)$('#noteDlg').hidden=true;else if(!$('#admDlg').hidden)admDlgClose();else if(!$('#admin').hidden)admClose();else if(!$('#rstDlg').hidden)rstClose();else if(!$('#delDlg').hidden)delClose();else if(!$('#settings').hidden)setClose();else if(!$('#gameOv').hidden)$('#gClose').click()});
 document.addEventListener('pointerdown',function once(){unlockAudio();document.removeEventListener('pointerdown',once)});
 $('#bSel').innerHTML=GAMES.map(function(g){return '<option value="'+g.id+'">'+g.ic+' '+g.t+'</option>'}).join('');
 applySettings();cat=CATS.some(function(c){return c[0]===pref('startcat')})?pref('startcat'):'all';syncName();renderHub();
