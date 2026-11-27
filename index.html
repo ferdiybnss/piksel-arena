@@ -178,6 +178,8 @@ html,body{overscroll-behavior-y:contain}
 body:has(#upBar:not([hidden])) .wrap{padding-bottom:110px}
 body:has(#upBar:not([hidden])) .toast{bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 #admValWrap label{display:block;text-align:center;font-weight:800;margin-bottom:6px}.admrow{gap:8px}.admrow .btn{min-width:44px;min-height:40px}
+.admnote{border:2px solid var(--line);border-radius:14px;padding:10px 12px;margin:0 0 12px}.admnote .chk{margin:0 0 4px;min-height:32px}.admnote small{display:block;color:var(--muted);font-size:12.5px;line-height:1.4}
+.admnote .chk input,#admSend{accent-color:var(--accent)}#admSendRow{justify-content:center;margin:12px 0 0;min-height:36px}
 
 .gemico{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:center;font-size:38px}.shipico{display:block;font-size:40px;line-height:54px;text-align:center}
 /* --- kopyalanan oyun stilleri --- */
@@ -338,7 +340,7 @@ body.aslan-mode.vip-gold #roachWrap svg{filter:drop-shadow(0 0 12px rgba(251,191
   <select class="search" id="bSel" aria-label="Oyun seç"></select><div id="bBody"></div></div></div>
 <div class="full" id="settings" hidden role="dialog" aria-modal="true" aria-label="Ayarlar"><div class="gin"><div class="gtop"><b>⚙️ Ayarlar</b><button type="button" class="btn" id="setClose">✕ Kapat</button></div><div id="setBody"></div></div></div>
 <div class="full" id="admin" hidden role="dialog" aria-modal="true" aria-label="Yönetici"><div class="gin"><div class="gtop"><b>🔐 Yönetici</b><button type="button" class="btn" id="admClose">✕ Kapat</button></div><div id="admBody"></div></div></div>
-<div class="dlg" id="admDlg" hidden role="alertdialog" aria-modal="true" aria-labelledby="admTitle" aria-describedby="admText"><div><h2 id="admTitle">Silinsin mi?</h2><p id="admNum">Adım 1 / 2</p><p id="admText"></p><div id="admValWrap" hidden><label for="admVal" id="admValLbl">Yeni skor</label><input id="admVal" autocomplete="off" inputmode="numeric" maxlength="11"></div><div id="admType" hidden><label for="admIn">Onaylamak için <b>SİL</b> yaz</label><input id="admIn" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="8"></div><div id="admDlgErr" role="alert"></div><div class="row ctr"><button type="button" class="btn" id="admNo">Vazgeç</button><button type="button" class="btn red" id="admYes">Devam et</button></div></div></div>
+<div class="dlg" id="admDlg" hidden role="alertdialog" aria-modal="true" aria-labelledby="admTitle" aria-describedby="admText"><div><h2 id="admTitle">Silinsin mi?</h2><p id="admNum">Adım 1 / 2</p><p id="admText"></p><div id="admValWrap" hidden><label for="admVal" id="admValLbl">Yeni skor</label><input id="admVal" autocomplete="off" inputmode="numeric" maxlength="11"></div><div id="admType" hidden><label for="admIn">Onaylamak için <b>SİL</b> yaz</label><input id="admIn" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="8"></div><label class="chk" id="admSendRow"><input type="checkbox" id="admSend" checked> 🔔 Oyuncuya bildirim gönder</label><div id="admDlgErr" role="alert"></div><div class="row ctr"><button type="button" class="btn" id="admNo">Vazgeç</button><button type="button" class="btn red" id="admYes">Devam et</button></div></div></div>
 <div class="welcome" id="welcome" hidden role="dialog" aria-modal="true" aria-labelledby="wTitle"><div class="wbox">
   <svg class="logo" viewBox="0 0 120 120" role="img" aria-label="Piksel Arena logosu">
 <defs><linearGradient id="lgw" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff4fa3"/><stop offset="1" stop-color="#6d4dff"/></linearGradient></defs>
@@ -2496,18 +2498,20 @@ function applyOrders(){
   var key=secret();
   return rpc('arcade_pending',{p_secret:key}).then(function(L){
     if(!L||!L.length)return false;
-    var last=+(lsGet('order')||0),top=0,gone=false,all=false,ch={};/* ch: oyun -> yeni değer, silindiyse null */
-    L.forEach(function(o){var id=+o.id;top=Math.max(top,id);if(id<=last)return;
-      if(o.kind==='delete')gone=true;
-      else if(o.kind==='set'){if(gameOf(o.game)&&+o.value){setLocal(o.game,o.value);ch[o.game]=+o.value}}
-      else if(o.game){wipeLocal(o.game);ch[o.game]=null}
-      else{GAMES.forEach(function(g){wipeLocal(g.id)});all=true;ch={}}});
+    /* ch: oyun -> {v: yeni değer (silindiyse null), say: oyuncuya söylensin mi}. Her oyunda son işlem geçerlidir. */
+    var last=+(lsGet('order')||0),top=0,gone=false,goneSay=false,all=false,ch={},fresh=false;
+    L.forEach(function(o){var id=+o.id,say=o.silent!==true;top=Math.max(top,id);if(id<=last)return;fresh=true;
+      if(o.kind==='delete'){gone=true;goneSay=say}
+      else if(o.kind==='set'){if(gameOf(o.game)&&+o.value){setLocal(o.game,o.value);ch[o.game]={v:+o.value,say:say}}}
+      else if(o.game){wipeLocal(o.game);ch[o.game]={v:null,say:say}}
+      else{GAMES.forEach(function(g){wipeLocal(g.id)});all=say;ch={}}});
     if(gone){GAMES.forEach(function(g){wipeLocal(g.id)});lsSet('optout','1');['name','reg','key'].forEach(lsDel)}
     lsSet('order',top);
-    var del=[],ed=[];Object.keys(ch).forEach(function(k){var g=gameOf(k),n=g?g.t:k;if(ch[k]===null)del.push(n);else ed.push(n+' → '+fmt(k,ch[k]))});
-    var msg=gone?'Yönetici seni sıralamadan sildi. Bu telefondaki skorların da temizlendi. İstersen “Adını seç” düğmesiyle yeniden katılabilirsin.':
+    var del=[],ed=[];Object.keys(ch).forEach(function(k){var c=ch[k],g=gameOf(k),n=g?g.t:k;if(!c.say)return;if(c.v===null)del.push(n);else ed.push(n+' → '+fmt(k,c.v))});
+    var msg=gone?(goneSay?'Yönetici seni sıralamadan sildi. Bu telefondaki skorların da temizlendi. İstersen “Adını seç” düğmesiyle yeniden katılabilirsin.':''):
       [all?'Yönetici bütün skorlarını sildi.':'',del.length?'Yönetici şu skorlarını sildi: '+del.join(', ')+'.':'',ed.length?'Yönetici şu skorlarını düzenledi: '+ed.join(', ')+'.':''].filter(Boolean).join(' ');
-    if(msg){$('#noteText').textContent=msg;$('#noteDlg').hidden=false;if(gone)$('#nameDlg').hidden=true;syncName();if($('#gameOv').hidden)renderHub()}
+    if(fresh){if(gone)$('#nameDlg').hidden=true;syncName();if($('#gameOv').hidden)renderHub()}
+    if(msg){$('#noteText').textContent=msg;$('#noteDlg').hidden=false}
     /* bildirim onaylanamazsa sunucu o skorları kabul etmez; sonraki eşitlemede yeniden denenir */
     return rpc('arcade_ack',{p_secret:key,p_upto:top}).then(function(){return gone});
   },function(e){if(e&&e.setup)return false;throw e});
@@ -2765,9 +2769,12 @@ function admLogin(msg){
   };
   $('#admPass').focus();
 }
+/* oyuncuya bildirim: genel tercih bu telefonda saklanır, her onay penceresinde o işlem için değiştirilebilir */
+function admNotify(){return lsGet('adm-notify')!=='0'}
+function admNotifyHtml(){return '<div class="admnote"><label class="chk"><input type="checkbox" id="admNotifyAll"'+(admNotify()?' checked':'')+'> 🔔 Oyuncuya bildirim gönder</label><small>İşaretliyse silme ve düzenlemelerde oyuncunun ekranında uyarı çıkar. Onay penceresinde her işlem için ayrıca değiştirebilirsin.</small></div>'}
 function admList(){
   ADM.cur=null;ADM.req++;
-  $('#admBody').innerHTML='<p class="note">'+ADM.list.length+' oyuncu. Skorlarını görmek, düzenlemek ve silmek için birine dokun.</p><input class="search" id="admQ" type="search" placeholder="Oyuncu ara…" aria-label="Oyuncu ara"><div id="admRows"></div>';
+  $('#admBody').innerHTML=admNotifyHtml()+'<p class="note">'+ADM.list.length+' oyuncu. Skorlarını görmek, düzenlemek ve silmek için birine dokun.</p><input class="search" id="admQ" type="search" placeholder="Oyuncu ara…" aria-label="Oyuncu ara"><div id="admRows"></div>';
   $('#admQ').value=ADM.q;admRows();
 }
 function admRows(){
@@ -2776,7 +2783,7 @@ function admRows(){
 }
 function admPlayer(id){
   var p=ADM.list.filter(function(x){return +x.id===+id})[0];if(!p)return admList();
-  ADM.cur=p;var req=++ADM.req,head='<button type="button" class="btn" data-adm="back">← Oyuncular</button><h3>'+esc(p.name)+'</h3>';
+  ADM.cur=p;var req=++ADM.req,head='<button type="button" class="btn" data-adm="back">← Oyuncular</button><h3>'+esc(p.name)+'</h3>'+admNotifyHtml();
   $('#admBody').innerHTML=head+'<p class="empty">Yükleniyor…</p>';
   rpc('arcade_player',{p_id:+p.id}).then(function(R){
     if(req!==ADM.req)return;
@@ -2792,6 +2799,7 @@ $('#admBody').onclick=function(e){
   admAsk(a,b.dataset.g||null,+b.dataset.v||0);
 };
 $('#admBody').oninput=function(e){if(e.target.id==='admQ'){ADM.q=e.target.value;admRows()}};
+$('#admBody').onchange=function(e){if(e.target.id==='admNotifyAll')lsSet('adm-notify',e.target.checked?'1':'0')};
 
 /* --- skor değeri: ekranda yazılan <-> sunucudaki biçim --- */
 function admUnit(game){if(game==='race')return 'saniye';return (Object.prototype.hasOwnProperty.call(UNIT,game)?UNIT[game]:'puan').replace(/^\.\s*/,'')}
@@ -2810,7 +2818,7 @@ function admAsk(mode,game,old){
   ADM.act={mode:mode,game:game,gname:gn,id:+ADM.cur.id,old:old,score:null,
     text:mode==='score'?who+'“'+gn+'” skoru silinecek.':mode==='scores'?who+'bütün skorları silinecek. Adı kalır.':'“'+ADM.cur.name+'” oyuncusu ve bütün skorları silinecek. Adı boşa çıkar.',
     done:mode==='edit'?'Skor güncellendi.':mode==='player'?'Oyuncu silindi.':mode==='scores'?'Oyuncunun skorları silindi.':'Skor silindi.'};
-  $('#admDlg').hidden=false;
+  $('#admDlg').hidden=false;$('#admSend').checked=admNotify();
   if(mode==='edit'){$('#admVal').value=admInputText(game,old);$('#admVal').inputMode=game==='race'?'decimal':'numeric'}
   admStep(1);
   if(mode==='edit'){$('#admVal').focus();$('#admVal').select()}else $('#admNo').focus();
@@ -2830,25 +2838,27 @@ function admStep(n){
 function admValOk(){var a=ADM.act,v=admParse(a.game,$('#admVal').value,a.old);return v!==null&&v!==a.old?v:null}
 function admTyped(){return $('#admIn').value.trim().replace(/[iıİ]/g,'I').toUpperCase()==='SIL'}
 function admDlgClose(){if(!ADM.busy)$('#admDlg').hidden=true}
-function admLock(on){ADM.busy=on;$('#admYes').disabled=$('#admNo').disabled=$('#admIn').disabled=$('#admVal').disabled=on}
+function admLock(on){ADM.busy=on;$('#admYes').disabled=$('#admNo').disabled=$('#admIn').disabled=$('#admVal').disabled=$('#admSend').disabled=on}
 function admGo(){
   if(ADM.busy)return;
   var a=ADM.act,ed=a.mode==='edit';
   if(ADM.step===1){if(ed){var v=admValOk();if(v===null)return;a.score=v}return admStep(2)}
   if(!ed&&!admTyped())return;
   var gone=false;admLock(true);$('#admDlgErr').textContent=ed?'Kaydediliyor…':'Siliniyor…';
-  var call=ed?rpc('arcade_admin_edit',{p_pass:ADM.pass,p_player:a.id,p_game:a.game,p_score:a.score}):rpc('arcade_admin_remove',{p_pass:ADM.pass,p_player:a.id,p_mode:a.mode,p_game:a.game});
-  call.then(function(st){
+  var notify=$('#admSend').checked,body=ed?{p_pass:ADM.pass,p_player:a.id,p_game:a.game,p_score:a.score}:{p_pass:ADM.pass,p_player:a.id,p_mode:a.mode,p_game:a.game};
+  /* parametre yalnız "gönderme" seçiliyse eklenir: SQL güncellenmemişse işlem yapılmaz, istenmeyen bildirim de gitmez */
+  if(!notify)body.p_notify=false;
+  rpc(ed?'arcade_admin_edit':'arcade_admin_remove',body).then(function(st){
     if(st==='bad'||st==='locked'||st==='unset'){admLock(false);admDlgClose();return admLogin(ADM_MSG[st])}
     if(st!=='ok'&&st!=='notfound')throw new Error('admin');
     gone=st==='notfound';
     return rpc('arcade_admin_players',{p_pass:ADM.pass}).then(function(r){
-      admLock(false);admDlgClose();toast(gone?(ed?'Bu skor artık yok.':'Bu kayıt zaten silinmiş.'):a.done);queueSync();
+      admLock(false);admDlgClose();toast(gone?(ed?'Bu skor artık yok.':'Bu kayıt zaten silinmiş.'):a.done+(notify?'':' Bildirim gönderilmedi.'));queueSync();
       if(r.status!=='ok')return admLogin(ADM_MSG[r.status]);
       ADM.list=r.players;if(a.mode==='player')admList();else admPlayer(a.id);
     });
   }).catch(function(e){admLock(false);
-    $('#admDlgErr').textContent=ed&&e&&e.setup?'Skor düzenleme için yeni SQL dosyasını Supabase’de bir kez çalıştırmalısın.':admErrText(e)+' (İşlemin yapılıp yapılmadığını listeden kontrol et.)'});
+    $('#admDlgErr').textContent=(ed||!notify)&&e&&e.setup?(ed?'Skor düzenleme':'Bildirimsiz silme')+' için yeni SQL dosyasını Supabase’de bir kez çalıştırmalısın.':admErrText(e)+' (İşlemin yapılıp yapılmadığını listeden kontrol et.)'});
 }
 $('#admVal').oninput=function(){$('#admYes').disabled=admValOk()===null};
 $('#admVal').onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();admGo()}};
