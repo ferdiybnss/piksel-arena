@@ -180,6 +180,29 @@ body:has(#upBar:not([hidden])) .toast{bottom:calc(96px + env(safe-area-inset-bot
 #admValWrap label{display:block;text-align:center;font-weight:800;margin-bottom:6px}.admrow{gap:8px}.admrow .btn{min-width:44px;min-height:40px}
 .admnote{border:2px solid var(--line);border-radius:14px;padding:10px 12px;margin:0 0 12px}.admnote .chk{margin:0 0 4px;min-height:32px}.admnote small{display:block;color:var(--muted);font-size:12.5px;line-height:1.4}
 .admnote .chk input,#admSend{accent-color:var(--accent)}#admSendRow{justify-content:center;margin:12px 0 0;min-height:36px}
+/* oyunların yerini değiştirme */
+.ordrow{display:flex;justify-content:flex-end;margin:-2px 0 10px}.ordrow .btn{font-size:13px;padding:7px 12px}
+#ordBar{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:2px solid var(--line);padding:calc(8px + env(safe-area-inset-top,0px)) 0 10px;margin-bottom:12px;text-align:center}#ordBar p{margin:0 0 8px;font-size:13px;color:var(--muted)}#ordBar b{color:var(--accent)}#ordBar .btn{font-size:13.5px}
+.cart.edit{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;scroll-margin:130px 0 16px}
+.cart.edit>.play{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;background:var(--surface);border:2px dashed var(--line);border-top:9px solid var(--c);border-radius:10px 10px 18px 18px;padding:14px 4px 8px}
+.cart.edit .mv{margin-top:auto;display:flex;align-items:stretch;justify-content:center;gap:4px;width:100%}
+.cart.edit .mvb,.cart.edit .grip{display:flex;align-items:center;justify-content:center;min-height:42px;border:2px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg);padding:0}
+.cart.edit .mvb{flex:0 1 38px;min-width:26px;font-size:13px}.cart.edit .mvb:disabled,.cart.edit .totop:disabled{opacity:.25;cursor:default}
+.cart.edit .grip{flex:1 1 44px;max-width:56px;min-width:34px;font-size:24px;border-color:var(--accent);color:var(--accent);touch-action:none;cursor:grab}
+.totop{position:absolute;right:2px;top:11px;border:0;background:none;color:var(--accent);font-size:20px;line-height:1;padding:5px 6px}
+.cart.dragging>*{visibility:hidden}.cart.dragging{outline:3px dashed var(--accent);outline-offset:-3px;border-radius:14px}
+.cart.ghost{position:fixed;z-index:150;margin:0;pointer-events:none;opacity:.92;transform:scale(1.05) rotate(2deg);filter:drop-shadow(0 12px 18px rgba(0,0,0,.55))}
+@keyframes ordMoved{from{filter:brightness(1.9)}to{filter:none}}.cart.moved{animation:ordMoved .6s}
+body[data-view=small] .cart.edit>.play{padding:10px 2px 5px;border-top-width:6px;gap:3px}body[data-view=small] .cart.edit .mv{gap:2px}body[data-view=small] .cart.edit .mvb{min-width:24px}body[data-view=small] .cart.edit .grip{min-width:32px;font-size:20px}body[data-view=small] .totop{top:6px;right:0;font-size:16px;padding:4px}
+body[data-view=list] .cart.edit>.play{flex-direction:row;text-align:left;gap:8px;border-top-width:2px;border-left:8px solid var(--c);border-radius:12px;padding:6px 40px 6px 8px}body[data-view=list] .cart.edit .ic{font-size:26px}body[data-view=list] .cart.edit b{flex:1;min-width:0;font-size:14px}body[data-view=list] .cart.edit .mv{margin:0;width:auto;flex:none}body[data-view=list] .cart.edit .mvb{flex:none;width:34px}body[data-view=list] .cart.edit .grip{flex:none;width:44px}
+body[data-view=list] .totop{top:50%;transform:translateY(-50%);right:6px}
+/* kartlar yer değiştirirken tarayıcı sayfayı kendiliğinden kaydırmasın */
+body.editing{overflow-anchor:none}
+.totop{right:3px;top:12px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;padding:0;border:2px solid var(--line);border-radius:9px;background:var(--bg);font-size:18px}
+body[data-view=small] .totop{top:8px;right:2px;width:26px;height:26px;padding:0;font-size:15px}
+body[data-view=list] .totop{top:50%;right:5px;width:30px;height:38px}
+body[data-view=list] .cart.edit>.play{gap:6px;padding:6px 40px 6px 6px}body[data-view=list] .cart.edit .mv{gap:3px}
+@media (max-width:359px){body[data-view=list] .cart.edit .ic{font-size:22px}body[data-view=list] .cart.edit b{font-size:12.5px}body[data-view=list] .cart.edit .mvb{width:28px;min-width:28px}body[data-view=list] .cart.edit .grip{width:36px;min-width:36px}}
 
 .gemico{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:center;font-size:38px}.shipico{display:block;font-size:40px;line-height:54px;text-align:center}
 /* --- kopyalanan oyun stilleri --- */
@@ -330,6 +353,8 @@ body.aslan-mode.vip-gold #roachWrap svg{filter:drop-shadow(0 0 12px rgba(251,191
 <main>
   <input class="search" id="q" type="search" placeholder="🔎 Oyun ara…" aria-label="Oyun ara">
   <nav class="cats" id="cats" aria-label="Kategoriler"></nav>
+  <div class="ordrow" id="ordRow"><button type="button" class="btn" id="ordBtn">↕️ Yerleri değiştir</button></div>
+  <div id="ordBar" hidden><p><b>⠿</b> tutamağından sürükle ya da oklarla kaydır. <b>⤒</b> en başa alır.</p><div class="row ctr"><button type="button" class="btn" id="ordReset">↺ Varsayılan sıra</button><button type="button" class="btn pri" id="ordDone">✓ Bitti</button></div></div>
   <div class="grid" id="grid"></div>
 </main>
 <footer>Skorların oyuncu adınla çevrimiçi sıralamaya gönderilir.<br><button type="button" id="fVer"></button><div class="sign">Ferdi</div></footer>
@@ -2645,7 +2670,7 @@ $('#gBoard').onclick=function(){var id=CUR;stopActive();BV.restart=id;boardOpen(
 /* ================= AYARLAR ================= */
 var THEMES=[['neon','Neon','#120a2a','#ffd23f','#ff4fa3'],['gameboy','El Konsolu','#1c2a12','#c5e063','#9bbc0f'],['amber','Amber Ekran','#140c02','#ffb000','#ff7a00'],
   ['ocean','Okyanus','#04202e','#4fe3ff','#2f8cff'],['rose','Gül','#2a0a1c','#ff8ac0','#ffd1a1'],['night','Gece Siyahı','#000000','#e8e8f0','#7c7c92'],['lava','Lav','#1f0703','#ffb03a','#ff4a2f'],['forest','Orman','#06190f','#7dffa0','#d9c06a'],['ice','Açık','#e9f1ff','#2f5bea','#e0367a']];
-var DEF={theme:'neon',view:'normal',startcat:'all',vol:'mid',vib:'0',crt:'1',sound:'1'};
+var DEF={theme:'neon',view:'normal',startcat:'all',vol:'mid',vib:'0',tv:'0',sound:'1'};
 var VOL={low:.35,mid:1,high:2};
 function pref(k){var v=lsGet(k);return v===null||v===''?DEF[k]:v}
 function volLevel(){return VOL[pref('vol')]||1}
@@ -2654,7 +2679,7 @@ function buzz(p){if(pref('vib')==='1'&&canVib()){try{navigator.vibrate(p)}catch(
 function applySettings(){
   var t=THEMES.filter(function(x){return x[0]===pref('theme')})[0]||THEMES[0];
   document.documentElement.dataset.theme=t[0];$('meta[name=theme-color]').content=t[2];
-  document.body.classList.toggle('crt',pref('crt')==='1');document.body.dataset.view=pref('view');
+  document.body.classList.toggle('crt',pref('tv')==='1');document.body.dataset.view=pref('view');
   S.settings.sound=pref('sound')==='1';syncSound();
 }
 function choice(key,list){return '<div class="opts">'+list.map(function(o){var on=pref(key)===o[0];return '<button type="button" class="btn'+(on?' pri':'')+'" data-set="'+key+'" data-v="'+o[0]+'" aria-pressed="'+on+'">'+o[1]+'</button>'}).join('')+'</div>'}
@@ -2667,8 +2692,8 @@ function setRender(){
     '<label class="lab2" for="setCat">Açılışta gösterilecek bölüm</label><select class="search" id="setCat">'+CATS.map(function(c){return '<option value="'+c[0]+'"'+(pref('startcat')===c[0]?' selected':'')+'>'+c[1]+'</option>'}).join('')+'</select></section>'+
   '<section><h3>Ses'+(canVib()?' ve titreşim':'')+'</h3>'+sw1('sound','Oyun sesleri')+'<label class="lab2">Ses düzeyi</label>'+choice('vol',[['low','Kısık'],['mid','Orta'],['high','Yüksek']])+
     (canVib()?sw1('vib','Titreşim','Gol, patlatma ve oyun sonunda telefon titrer'):'')+'</section>'+
-  '<section><h3>Ekran</h3>'+sw1('crt','Tüplü ekran efekti','Eski televizyon çizgileri')+'</section>'+
-  '<div class="row ctr"><button type="button" class="btn" data-act="reset">↺ Varsayılana dön</button></div><p class="note">Adın, skorların ve favorilerin değişmez.</p>'+
+  '<section><h3>Ekran</h3>'+sw1('tv','Tüplü ekran efekti','Eski televizyon çizgileri')+'</section>'+
+  '<div class="row ctr"><button type="button" class="btn" data-act="reset">↺ Varsayılana dön</button></div><p class="note">Adın, skorların, favorilerin ve oyun sıran değişmez.</p>'+
   rstSection()+
   (pname()?'<section class="danger"><h3>Sıralamadan silinme</h3><p>Adın ve online skorların sıralamadan kalıcı olarak silinir.</p><button type="button" class="btn red" data-act="del">🗑️ Beni sıralamadan sil</button></section>':'')+
   '<section class="vers"><h3>Sürüm '+APP_VERSION+'</h3><div class="row ctr"><button type="button" class="btn" data-act="news">📋 Yenilikler</button><button type="button" class="btn'+(VC.found?' pri':'')+'" data-act="upd">'+(VC.found?'⬇️ '+VC.found+' sürümüne güncelle':'🔄 Güncelleme denetle')+'</button></div></section>'+
@@ -2930,10 +2955,106 @@ $('#wCopy').onclick=function(){var b=this,url=location.href;
 $('#wSkip').onclick=welcomeClose;
 syncInstall();
 
+/* ================= ANA EKRANDA OYUNLARIN YERİNİ DEĞİŞTİRME ================= */
+/* sıra yalnız bu telefonda saklanır; listede olmayan (yeni eklenen) oyunlar sona gelir */
+function orderedGames(){
+  var s=null;try{s=JSON.parse(lsGet('gorder')||'[]')}catch(e){}
+  if(!Array.isArray(s))s=[];
+  var seen={},L=[];
+  s.forEach(function(id){var g=gameOf(id);if(g&&!seen[g.id]){seen[g.id]=1;L.push(g)}});
+  GAMES.forEach(function(g){if(!seen[g.id])L.push(g)});
+  return L;
+}
+var EDIT=false,DRAG=null,editPrev=null,ordSure=null;
+function editRender(){
+  var v=pref('view')==='list';
+  $('#grid').innerHTML=orderedGames().map(function(g){return '<div class="cart edit" data-id="'+g.id+'" style="--c:'+COLORS[g.cat]+'"><div class="play"><span class="ic">'+g.ic+'</span><b>'+g.t+'</b><div class="mv">'+
+    '<button type="button" class="mvb" data-mv="-1" aria-label="'+g.t+': bir öne al">'+(v?'▲':'◀')+'</button><span class="grip" aria-hidden="true">⠿</span><button type="button" class="mvb" data-mv="1" aria-label="'+g.t+': bir arkaya al">'+(v?'▼':'▶')+'</button></div></div>'+
+    '<button type="button" class="totop" data-top aria-label="'+g.t+': en başa al">⤒</button></div>'}).join('');
+  ordArrows();
+}
+function ordArrows(){
+  var C=$('#grid').children,n=C.length;
+  for(var i=0;i<n;i++){C[i].querySelector('[data-mv="-1"]').disabled=C[i].querySelector('[data-top]').disabled=i===0;C[i].querySelector('[data-mv="1"]').disabled=i===n-1}
+}
+function ordSave(){lsSet('gorder',JSON.stringify([].map.call($('#grid').querySelectorAll('.cart[data-id]'),function(e){return e.dataset.id})));ordArrows()}
+function ordSureEnd(){clearTimeout(ordSure);ordSure=null;$('#ordReset').textContent='↺ Varsayılan sıra'}
+function editMode(on){document.body.classList.toggle('editing',on);$('#ordBar').hidden=!on;$('#ordRow').hidden=$('#q').hidden=$('#cats').hidden=on}
+function editStart(){
+  if(EDIT)return;
+  EDIT=true;editPrev=[cat,$('#q').value];cat='all';$('#q').value='';
+  try{history.pushState({o:1},'')}catch(e){}
+  editMode(true);renderHub();$('#ordBar').scrollIntoView({block:'start'});$('#ordDone').focus({preventScroll:true});
+}
+function editEnd(fromBack){
+  if(!EDIT)return;
+  dragEnd();ordSureEnd();if(fromBack!==true)popBack('o');
+  EDIT=false;cat=editPrev[0];$('#q').value=editPrev[1];editMode(false);renderHub();
+}
+/* oklar ve "en başa" */
+function ordClick(e){
+  var b=e.target.closest('button');if(!b||DRAG)return;
+  var c=b.closest('.cart'),grid=$('#grid');if(!c)return;
+  if(b.hasAttribute('data-top')){grid.insertBefore(c,grid.firstElementChild);ordSave();toast('⤒ '+gameOf(c.dataset.id).t+' en başa alındı');return}
+  /* odak kaybolmasın diye komşu kart taşınır */
+  if(b.dataset.mv==='-1'){var p=c.previousElementSibling;if(!p)return;grid.insertBefore(p,c.nextElementSibling)}
+  else{var n=c.nextElementSibling;if(!n)return;grid.insertBefore(n,c)}
+  ordSave();c.scrollIntoView({block:'nearest'});c.classList.remove('moved');void c.offsetWidth;c.classList.add('moved');
+}
+/* tutamaktan sürükle-bırak (parmak ve fare) */
+$('#grid').addEventListener('pointerdown',function(e){
+  var grip=e.target.closest('.grip');if(!EDIT||DRAG||!grip||e.button>0)return;
+  e.preventDefault();
+  var c=grip.closest('.cart'),r=c.getBoundingClientRect(),gh=c.cloneNode(true);
+  gh.removeAttribute('data-id');gh.classList.add('ghost');gh.setAttribute('aria-hidden','true');gh.style.width=r.width+'px';gh.style.height=r.height+'px';
+  document.body.appendChild(gh);c.classList.add('dragging');
+  DRAG={pid:e.pointerId,el:c,gh:gh,dx:e.clientX-r.left,dy:e.clientY-r.top,x:e.clientX,y:e.clientY,x0:e.clientX,y0:e.clientY,moved:false,last:null,raf:0};
+  dragPlace();DRAG.raf=requestAnimationFrame(dragTick);
+});
+function dragPlace(){
+  var D=DRAG;D.gh.style.left=(D.x-D.dx)+'px';D.gh.style.top=(D.y-D.dy)+'px';
+  if(!D.moved)return;
+  /* parmak üst çubuğun ya da ızgaranın dışına taşsa da en yakın görünür karta bırakılır */
+  var el=D.el,grid=$('#grid'),G=grid.getBoundingClientRect(),
+    x=Math.min(Math.max(D.x,G.left+12),G.right-12),y=Math.min(Math.max(D.y,Math.max($('#ordBar').getBoundingClientRect().bottom,G.top)+20),Math.min(innerHeight,G.bottom)-20),
+    hit=document.elementFromPoint(x,y),t=hit&&hit.closest('#grid .cart');
+  if(!t||t===el){D.last=null;return}
+  if(t===D.last)return;
+  D.last=t;
+  /* sürüklenen kart yerinden sökülmez; aradaki kartlar onun öbür yanına geçer */
+  if(el.compareDocumentPosition(t)&Node.DOCUMENT_POSITION_FOLLOWING){var n;do{n=el.nextElementSibling;grid.insertBefore(n,el)}while(n!==t)}
+  else{var p;do{p=el.previousElementSibling;grid.insertBefore(p,el.nextElementSibling)}while(p!==t)}
+}
+/* ekranın kenarına gelince sayfa kendiliğinden kayar */
+function dragTick(){
+  var D=DRAG;if(!D)return;
+  var top=Math.max($('#ordBar').getBoundingClientRect().bottom,0)+30,bot=innerHeight-80,v=0;
+  if(D.moved){if(D.y<top)v=-Math.min(16,3+(top-D.y)/5);else if(D.y>bot)v=Math.min(16,3+(D.y-bot)/5)}
+  if(v){window.scrollBy(0,v);dragPlace()}
+  D.raf=requestAnimationFrame(dragTick);
+}
+window.addEventListener('pointermove',function(e){
+  var D=DRAG;if(!D||e.pointerId!==D.pid)return;
+  D.x=e.clientX;D.y=e.clientY;if(Math.abs(D.x-D.x0)+Math.abs(D.y-D.y0)>6)D.moved=true;dragPlace();
+});
+function dragEnd(e){
+  var D=DRAG;if(!D||(e&&e.pointerId!==undefined&&e.pointerId!==D.pid))return;
+  cancelAnimationFrame(D.raf);D.gh.remove();D.el.classList.remove('dragging');DRAG=null;ordSave();renderHub();
+}
+window.addEventListener('pointerup',dragEnd);window.addEventListener('pointercancel',dragEnd);
+window.addEventListener('blur',function(){dragEnd()});document.addEventListener('visibilitychange',function(){if(document.hidden)dragEnd()});
+$('#ordBtn').onclick=editStart;$('#ordDone').onclick=function(){editEnd();toast('✅ Sıralaman kaydedildi')};
+/* yanlışlıkla bozulmasın diye iki dokunuş ister */
+$('#ordReset').onclick=function(){
+  if(!ordSure){this.textContent='Emin misin? Tekrar dokun';ordSure=setTimeout(ordSureEnd,3500);return}
+  ordSureEnd();lsDel('gorder');renderHub();toast('Oyunlar varsayılan sıraya döndü');
+};
+
 /* ================= SÜRÜM VE YENİLİKLER =================
    HER GÜNCELLEMEDE: APP_VERSION'ı artır ve listenin EN BAŞINA yeni maddeyi ekle (build.py ikisinin aynı olduğunu denetler). */
-var APP_VERSION='1.6';
+var APP_VERSION='1.7';
 var CHANGELOG=[
+ ['1.7',['Ana ekrandaki oyunların yerini “↕️ Yerleri değiştir” ile istediğin gibi düzenleyebilirsin.','Tüplü ekran efekti artık kapalı geliyor; istersen Ayarlar’dan açabilirsin.']],
  ['1.6',['Sürüm numarası ve bu “Yenilikler” penceresi eklendi.','Yeni sürüm çıkınca uygulama haber veriyor; tek dokunuşla güncelleniyor.']],
  ['1.5',['Telefona uygulama olarak yükleme ve ilk girişte kurulum ekranı.','Oyunlar internetsiz de açılıyor.']],
  ['1.4',['Yönetici bölümü: şifreyle skor ve oyuncu silme.']],
@@ -3034,16 +3155,18 @@ var COLORS={atari:'#ff4fa3',beceri:'#ff9f1c',zeka:'#2ee6d6',kelime:'#8bd450',mas
 var cat='all';
 function favs(){try{return JSON.parse(lsGet('favs')||'[]')}catch(e){return []}}
 function renderHub(){
+  if(DRAG)return;/* sürükleme sürerken ızgara yeniden çizilmez */
+  $('#count').textContent=GAMES.length;
+  if(EDIT)return editRender();
   var q=$('#q').value.toLocaleLowerCase('tr-TR').trim(),F=favs();
   $('#cats').innerHTML=CATS.map(function(c){return '<button class="btn'+(cat===c[0]?' pri':'')+'" data-cat="'+c[0]+'" aria-pressed="'+(cat===c[0])+'">'+c[1]+'</button>'}).join('');
-  var L=GAMES.filter(function(g){return (cat==='all'||(cat==='fav'?F.indexOf(g.id)>=0:g.cat===cat))&&(!q||(g.t+' '+g.d).toLocaleLowerCase('tr-TR').indexOf(q)>=0)});
+  var L=orderedGames().filter(function(g){return (cat==='all'||(cat==='fav'?F.indexOf(g.id)>=0:g.cat===cat))&&(!q||(g.t+' '+g.d).toLocaleLowerCase('tr-TR').indexOf(q)>=0)});
   $('#grid').innerHTML=L.map(function(g){var on=F.indexOf(g.id)>=0;return '<div class="cart" style="--c:'+COLORS[g.cat]+'"><button class="play" data-g="'+g.id+'"><span class="ic">'+g.ic+'</span><b>'+g.t+'</b><small>'+g.d+'</small><span class="rec">'+g.label()+'</span></button><button class="fav'+(on?' on':'')+'" data-fav="'+g.id+'" aria-label="'+g.t+' favori" aria-pressed="'+on+'">'+(on?'★':'☆')+'</button></div>'}).join('')||
     '<p class="empty">'+(cat==='fav'&&!q?'Favorin yok. Bir oyunun ☆ işaretine dokun.':'Oyun bulunamadı.')+'</p>';
-  $('#count').textContent=GAMES.length;
 }
 var CUR=null;
 function startGame(id){var g=GAMES.filter(function(x){return x.id===id})[0];if(!g)return;unlockAudio();CUR=id;g.open()}
-$('#grid').onclick=function(e){var f=e.target.closest('[data-fav]');if(f){var F=favs(),i=F.indexOf(f.dataset.fav);if(i<0)F.push(f.dataset.fav);else F.splice(i,1);lsSet('favs',JSON.stringify(F));renderHub();return}
+$('#grid').onclick=function(e){if(EDIT)return ordClick(e);var f=e.target.closest('[data-fav]');if(f){var F=favs(),i=F.indexOf(f.dataset.fav);if(i<0)F.push(f.dataset.fav);else F.splice(i,1);lsSet('favs',JSON.stringify(F));renderHub();return}
   var b=e.target.closest('[data-g]');if(b)startGame(b.dataset.g)};
 $('#cats').onclick=function(e){var b=e.target.closest('[data-cat]');if(b){cat=b.dataset.cat;renderHub()}};
 $('#q').oninput=renderHub;
@@ -3051,9 +3174,9 @@ $('#hRandom').onclick=function(){var g=GAMES[rnd(GAMES.length)];toast('🎲 '+g.
 $('#hSound').onclick=toggleSound;$('#gSound').onclick=toggleSound;
 $('#gClose').onclick=function(){hideGame();popBack('g')};
 /* geri tuşu yalnız üstteki küçük pencereyi kapatınca, alttaki ekranın geçmiş kaydı geri konur */
-function rePush(){var k=!$('#verDlg').hidden?'v':!$('#admin').hidden?'a':!$('#board').hidden?'b':!$('#settings').hidden?'s':!$('#gameOv').hidden?'g':'';if(k){var st={};st[k]=1;try{history.pushState(st,'')}catch(e){}}}
-window.addEventListener('popstate',function(){if(skipPop>0){skipPop--;return}if(!$('#verDlg').hidden&&$('#noteDlg').hidden){verClose(true);return}if(!$('#instDlg').hidden){instClose(true);return}if(!$('#board').hidden)boardClose(true);else if(!$('#noteDlg').hidden){$('#noteDlg').hidden=true;rePush()}else if(!$('#admDlg').hidden){admDlgClose();rePush()}else if(!$('#admin').hidden){if(ADM.busy)rePush();else admClose(true)}else if(!$('#rstDlg').hidden){rstClose();try{history.pushState({s:1},'')}catch(e){}}else if(!$('#delDlg').hidden){delClose();try{history.pushState({s:1},'')}catch(e){}}else if(!$('#settings').hidden)setClose(true);else if(!$('#gameOv').hidden)hideGame()});
-document.addEventListener('keydown',function(e){if(e.key!=='Escape'||!$('#nameDlg').hidden)return;if(!$('#verDlg').hidden&&$('#noteDlg').hidden){verClose();return}if(!$('#instDlg').hidden){instClose();return}if(!$('#welcome').hidden){welcomeClose();return}if(!$('#board').hidden)boardClose();else if(!$('#noteDlg').hidden)$('#noteDlg').hidden=true;else if(!$('#admDlg').hidden)admDlgClose();else if(!$('#admin').hidden)admClose();else if(!$('#rstDlg').hidden)rstClose();else if(!$('#delDlg').hidden)delClose();else if(!$('#settings').hidden)setClose();else if(!$('#gameOv').hidden)$('#gClose').click()});
+function rePush(){var k=!$('#verDlg').hidden?'v':!$('#admin').hidden?'a':!$('#board').hidden?'b':!$('#settings').hidden?'s':!$('#gameOv').hidden?'g':EDIT?'o':'';if(k){var st={};st[k]=1;try{history.pushState(st,'')}catch(e){}}}
+window.addEventListener('popstate',function(){if(skipPop>0){skipPop--;return}if(!$('#verDlg').hidden&&$('#noteDlg').hidden){verClose(true);return}if(!$('#instDlg').hidden){instClose(true);return}if(!$('#board').hidden)boardClose(true);else if(!$('#noteDlg').hidden){$('#noteDlg').hidden=true;rePush()}else if(!$('#admDlg').hidden){admDlgClose();rePush()}else if(!$('#admin').hidden){if(ADM.busy)rePush();else admClose(true)}else if(!$('#rstDlg').hidden){rstClose();try{history.pushState({s:1},'')}catch(e){}}else if(!$('#delDlg').hidden){delClose();try{history.pushState({s:1},'')}catch(e){}}else if(!$('#settings').hidden)setClose(true);else if(!$('#gameOv').hidden)hideGame();else if(EDIT)editEnd(true)});
+document.addEventListener('keydown',function(e){if(e.key!=='Escape'||!$('#nameDlg').hidden)return;if(!$('#verDlg').hidden&&$('#noteDlg').hidden){verClose();return}if(!$('#instDlg').hidden){instClose();return}if(!$('#welcome').hidden){welcomeClose();return}if(!$('#board').hidden)boardClose();else if(!$('#noteDlg').hidden)$('#noteDlg').hidden=true;else if(!$('#admDlg').hidden)admDlgClose();else if(!$('#admin').hidden)admClose();else if(!$('#rstDlg').hidden)rstClose();else if(!$('#delDlg').hidden)delClose();else if(!$('#settings').hidden)setClose();else if(!$('#gameOv').hidden)$('#gClose').click();else if(EDIT)editEnd()});
 document.addEventListener('pointerdown',function once(){unlockAudio();document.removeEventListener('pointerdown',once)});
 $('#bSel').innerHTML=GAMES.map(function(g){return '<option value="'+g.id+'">'+g.ic+' '+g.t+'</option>'}).join('');
 applySettings();cat=CATS.some(function(c){return c[0]===pref('startcat')})?pref('startcat'):'all';syncName();renderHub();
